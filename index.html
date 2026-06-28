@@ -1,945 +1,524 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-
-
 <style>
-
-
 @font-face{
-
 font-family:"Akogare";
-
 src:url("akogarenomarumoji.ttf");
-
 }
-
-
-
 html,body{
-
 margin:0;
-
 width:100%;
-
 height:100%;
-
 overflow:hidden;
-
 background:transparent;
-
 }
-
-
-
 #game{
-
 width:1536px;
-
 height:2048px;
-
 position:relative;
-
 transform-origin:top left;
-
 }
-
-
-
-
-/* ボタン */
-
-#startBtn,
-#optionBtn,
-#resetBtn{
-
+#startBtn,#optionBtn,#resetBtn{
 position:absolute;
-
 z-index:999;
-
 cursor:pointer;
-
 }
-
-
-
-#startBtn{
-
-top:80px;
-
-left:250px;
-
-width:350px;
-
-}
-
-
-#optionBtn{
-
-top:80px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-width:250px;
-
-}
-
-
-#resetBtn{
-
-top:80px;
-
-right:250px;
-
-width:350px;
-
-}
-
-
-
-
-
-/* カード */
+#startBtn{ top:80px; left:250px; width:350px; }
+#optionBtn{ top:80px; left:50%; transform:translateX(-50%); width:250px; }
+#resetBtn{ top:80px; right:250px; width:350px; }
 
 #memory{
-
 position:absolute;
-
 top:450px;
-
 left:50%;
-
 transform:translateX(-50%);
-
 display:none;
-
 gap:50px;
-
 z-index:2;
-
 }
-
-
-
 .card{
-
 width:300px;
-
 height:300px;
-
 position:relative;
-
 cursor:pointer;
-
 }
-
-
-
 .card img{
-
 width:300px;
-
 height:300px;
-
 border-radius:30px;
-
 }
-
-
-
 .cardNumber{
-
-
 position:absolute;
-
-
-top:0;
-
-left:0;
-
-
-width:100%;
-height:100%;
-
+top:0;left:0;
+width:100%;height:100%;
 font-size:90px;
-
-
-
 display:flex;
-
 align-items:center;
-
 justify-content:center;
-
-
-
-
 font-family:"Akogare";
-
 font-size:150px;
-
 color:black;
-
-text-shadow:
-
-4px 4px 0 pink;
-
-
+text-shadow:4px 4px 0 pink;
 pointer-events:none;
-
-
 }
-
-
-
 
 #optionMenu{
-
 position:absolute;
-
 top:350px;
-
 left:50%;
-
 transform:translateX(-50%);
-
-
 background:rgba(0,0,0,.7);
-
 color:white;
-
-
 padding:50px;
-
-
 border-radius:30px;
-
-
 font-size:45px;
-
-
 display:none;
-
-
 z-index:1000;
-
 }
-
-
-select,button{
-
-font-size:35px;
-
-}
-
-
+select,button{ font-size:35px; }
 
 canvas{
-
 position:absolute;
-
-top:0;
-
-left:0;
-
+top:0;left:0;
 z-index:1;
-
 pointer-events:none;
-
 }
 
+/* アイコン消去モード用UI */
+#iconUI{
+position:absolute;
+top:220px;
+left:50%;
+transform:translateX(-50%);
+display:none;
+gap:40px;
+z-index:999;
+align-items:center;
+}
+#iconUI button{
+font-family:"Akogare";
+font-size:60px;
+padding:20px 60px;
+border-radius:30px;
+border:none;
+cursor:pointer;
+background:rgba(255,100,180,0.85);
+color:white;
+text-shadow:2px 2px 0 hotpink;
+box-shadow:0 4px 15px rgba(255,100,180,0.5);
+}
+#iconUI button:active{
+transform:scale(0.95);
+}
+#selectedCount{
+font-family:"Akogare";
+font-size:70px;
+color:white;
+text-shadow:3px 3px 0 hotpink;
+white-space:nowrap;
+}
+#cancelBtn{
+background:rgba(100,100,100,0.85) !important;
+box-shadow:0 4px 15px rgba(100,100,100,0.5) !important;
+}
 
-
+/* トグルスイッチ */
+.toggle-wrap{
+display:flex;
+align-items:center;
+gap:20px;
+margin-top:10px;
+}
+.toggle{
+position:relative;
+width:100px;
+height:50px;
+}
+.toggle input{ opacity:0; width:0; height:0; }
+.slider{
+position:absolute;
+cursor:pointer;
+top:0;left:0;right:0;bottom:0;
+background:#555;
+border-radius:50px;
+transition:.3s;
+}
+.slider:before{
+position:absolute;
+content:"";
+height:38px;
+width:38px;
+left:6px;
+bottom:6px;
+background:white;
+border-radius:50%;
+transition:.3s;
+}
+input:checked+.slider{ background:hotpink; }
+input:checked+.slider:before{ transform:translateX(50px); }
 </style>
-
-
 </head>
-
-
-
 <body>
-
-
-
 <div id="game">
-
-
-
 <img id="startBtn" src="start.png">
-
-
 <img id="optionBtn" src="option.png">
-
-
 <img id="resetBtn" src="reset.png">
-
-
 
 <div id="memory"></div>
 
-
+<!-- アイコン消去モードUI -->
+<div id="iconUI">
+  <div id="selectedCount">0個選択中</div>
+  <button id="decideBtn">決定</button>
+  <button id="cancelBtn">キャンセル</button>
+</div>
 
 <div id="optionMenu">
-
-
 <h2>設定</h2>
-
-
-ペア数
-
-
-<br>
-
-
+ペア数<br>
 <select id="cardCount">
-
-
 <option value="3">3ペア</option>
-
 <option value="6">6ペア</option>
-
 <option value="10">10ペア</option>
-
-
 </select>
-
-
 <br><br>
-
-
-
-種類数
-
-
-<br>
-
-
+種類数<br>
 <select id="iconCount">
-
-
 <option value="3">3種類</option>
-
 <option value="4">4種類</option>
-
 <option value="5">5種類</option>
-
-
 </select>
-
-
 <br><br>
-
-
-<button id="closeOption">
-
-決定
-
-</button>
-
-
+消す(アイコン)<br>
+<div class="toggle-wrap">
+<label class="toggle">
+<input type="checkbox" id="iconEraseMode">
+<span class="slider"></span>
+</label>
+<span id="iconEraseModeLabel">OFF</span>
 </div>
-
-
-
+<br>
+<button id="closeOption">決定</button>
 </div>
-
-
-
-
+</div>
 
 <script>
-
-
-
 const WIDTH=1536;
-
 const HEIGHT=2048;
 
-
-
-// 音
-
+// 既存の音
 const sounds={
-
-
 flip:new Audio("flip.mp3"),
-
 correct:new Audio("correct.mp3"),
-
 miss:new Audio("miss.mp3"),
-
 drop:new Audio("drop.mp3")
-
-
 };
-
-
-
 function playSound(name){
-
 sounds[name].currentTime=0;
-
 sounds[name].play();
-
 }
 
+// Web Audio API 音階
+const AudioContext=window.AudioContext||window.webkitAudioContext;
+const audioCtx=new AudioContext();
 
+// ドレミファソラシド の周波数
+const scaleFreqs=[261.63,293.66,329.63,349.23,392.00,440.00,493.88,523.25];
 
+function playNote(index,startTime){
+let freq=scaleFreqs[index%scaleFreqs.length];
+let osc=audioCtx.createOscillator();
+let gain=audioCtx.createGain();
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.type="sine";
+osc.frequency.setValueAtTime(freq,startTime);
+gain.gain.setValueAtTime(0.4,startTime);
+gain.gain.exponentialRampToValueAtTime(0.001,startTime+0.4);
+osc.start(startTime);
+osc.stop(startTime+0.4);
+}
 
+function playScale(count){
+// count個分の音階を順番に鳴らす
+for(let i=0;i<count;i++){
+playNote(i, audioCtx.currentTime+i*0.25);
+}
+}
 
-// Matter
-
-
-const {
-
-Engine,
-
-Render,
-
-World,
-
-Bodies
-
-
-}=Matter;
-
-
-
+// Matter.js
+const {Engine,Render,Runner,World,Bodies}=Matter;
 const engine=Engine.create();
-
-
-
 const render=Render.create({
-
 element:game,
-
 engine:engine,
-
-
 options:{
-
-
 width:WIDTH,
-
 height:HEIGHT,
-
 background:"transparent",
-
 wireframes:false
-
-
 }
-
-
 });
-
-
-
 Render.run(render);
+const runner=Runner.create();
+Runner.run(runner,engine);
 
-Engine.run(engine);
-
-
-
-
-
-
-World.add(engine.world, [
-
-  // 床
-  Bodies.rectangle(WIDTH/2, HEIGHT-40, WIDTH, 80, {isStatic:true}),
-  // 左壁
-  Bodies.rectangle(0, HEIGHT/2, 80, HEIGHT, {isStatic:true}),
-  // 右壁
-  Bodies.rectangle(WIDTH, HEIGHT/2, 80, HEIGHT, {isStatic:true}),
+World.add(engine.world,[
+Bodies.rectangle(WIDTH/2,HEIGHT-40,WIDTH,80,{isStatic:true,render:{fillStyle:"transparent"}}),
+Bodies.rectangle(0,HEIGHT/2,80,HEIGHT,{isStatic:true,render:{fillStyle:"transparent"}}),
+Bodies.rectangle(WIDTH,HEIGHT/2,80,HEIGHT,{isStatic:true,render:{fillStyle:"transparent"}}),
 ]);
 
+const icons=["cat.png","cat2.png","cat3.png","cat4.png","cat5.png"];
 
+// 落下ボール管理
+let balls=[];
 
-
-
-
-
-function dropIcon(image){
-
-
-
+function dropIconBall(image){
 let ball=Bodies.circle(
-
-
-Math.random()*1000+200,
-
-
-100,
-
-
-120,
-
-
+Math.random()*1000+200,100,120,
 {
-
-
-restitution:0,
-
-friction:1,
-
-
-render:{
-
-
-sprite:{
-
-
-texture:image,
-
-xScale:.35,
-
-yScale:.35
-
-
+restitution:0.3,
+friction:0.8,
+render:{sprite:{texture:image,xScale:.35,yScale:.35}}
 }
-
-
-}
-
-
-
-}
-
-
-
 );
-
-
-
+ball.iconSrc=image;
+ball.isSelected=false;
+ball.glowEl=null;
 World.add(engine.world,ball);
-
-
+balls.push(ball);
 playSound("drop");
-
-
 }
 
+// =========================================
+// アイコン消去モード
+// =========================================
+let isIconEraseMode=false;
+let selectedBalls=[];
+let selectedIconType=null;
+let noteIndex=0;
 
+function updateSelectedCount(){
+selectedCount.textContent=selectedBalls.length+"個選択中";
+}
 
+function getGamePos(clientX,clientY){
+let scale=parseFloat(game.style.transform.replace("scale(","").replace(")",""))||1;
+let rect=game.getBoundingClientRect();
+return{
+x:(clientX-rect.left)/scale,
+y:(clientY-rect.top)/scale
+};
+}
 
+function dist(ax,ay,bx,by){
+return Math.sqrt((ax-bx)**2+(ay-by)**2);
+}
 
+// Matter.jsのcanvasクリックでボールを選択
+function setupBallClickEvents(){
+render.canvas.style.pointerEvents="auto";
+render.canvas.addEventListener("click",e=>{
+if(!isIconEraseMode)return;
+// AudioContextを再開（ブラウザの自動再生制限対策）
+if(audioCtx.state==="suspended") audioCtx.resume();
 
+let pos=getGamePos(e.clientX,e.clientY);
+// クリック位置に近いボールを探す
+let hit=null;
+let minD=Infinity;
+balls.forEach(ball=>{
+if(!ball.isActive)return;
+let d=dist(pos.x,pos.y,ball.position.x,ball.position.y);
+if(d<130&&d<minD){
+minD=d;
+hit=ball;
+}
+});
+if(!hit)return;
 
+// 違う種類は無視
+if(selectedIconType!==null&&hit.iconSrc!==selectedIconType)return;
 
-let icons=[
+// 既に選択済みなら解除
+if(hit.isSelected){
+hit.isSelected=false;
+hit.render.opacity=1;
+selectedBalls=selectedBalls.filter(b=>b!==hit);
+noteIndex=Math.max(0,noteIndex-1);
+if(selectedBalls.length===0) selectedIconType=null;
+updateSelectedCount();
+return;
+}
 
-"cat.png",
+// 新規選択
+if(selectedIconType===null) selectedIconType=hit.iconSrc;
+hit.isSelected=true;
+hit.render.opacity=0.5;
+selectedBalls.push(hit);
+// 選択音
+playNote(noteIndex,audioCtx.currentTime);
+noteIndex++;
+updateSelectedCount();
+});
+}
 
-"cat2.png",
+// 決定ボタン
+decideBtn.onclick=()=>{
+if(audioCtx.state==="suspended") audioCtx.resume();
+if(selectedBalls.length<3){
+playSound("miss");
+// 選択解除
+selectedBalls.forEach(b=>{ b.isSelected=false; b.render.opacity=1; });
+selectedBalls=[];
+selectedIconType=null;
+noteIndex=0;
+updateSelectedCount();
+return;
+}
+// 消す
+let count=selectedBalls.length;
+playScale(count);
+selectedBalls.forEach(b=>{
+b.isActive=false;
+World.remove(engine.world,b);
+balls=balls.filter(bb=>bb!==b);
+});
+selectedBalls=[];
+selectedIconType=null;
+noteIndex=0;
+updateSelectedCount();
+};
 
-"cat3.png",
+// キャンセルボタン
+cancelBtn.onclick=()=>{
+selectedBalls.forEach(b=>{ b.isSelected=false; b.render.opacity=1; });
+selectedBalls=[];
+selectedIconType=null;
+noteIndex=0;
+updateSelectedCount();
+};
 
-"cat4.png",
+// アイコン消去モード切り替え
+iconEraseMode.addEventListener("change",()=>{
+isIconEraseMode=iconEraseMode.checked;
+iconEraseModeLabel.textContent=isIconEraseMode?"ON":"OFF";
+iconUI.style.display=isIconEraseMode?"flex":"none";
+// 選択リセット
+selectedBalls.forEach(b=>{ b.isSelected=false; b.render.opacity=1; });
+selectedBalls=[];
+selectedIconType=null;
+noteIndex=0;
+updateSelectedCount();
+});
 
-"cat5.png"
-
-
-];
-
-
-
+// =========================================
+// カードゲーム
+// =========================================
 let first=null;
-
 let second=null;
 
-
-
-
-
-
-
 function startMemory(){
-
-
-
 resetMemory();
-
-
 let cards=[];
-
-
-
-let pair=
-
-Number(cardCount.value);
-
-
-
-let type=
-
-Number(iconCount.value);
-
-
-
-
-
+let pair=Number(cardCount.value);
+let type=Number(iconCount.value);
 for(let i=0;i<pair;i++){
-
-
-let icon=
-
-icons[i%type];
-
-
-
+let icon=icons[i%type];
 cards.push(icon);
-
-
 cards.push(icon);
-
-
-
 }
-
-
-
 cards.sort(()=>Math.random()-0.5);
 
-
-
-
 let area=document.getElementById("memory");
-
 area.style.display="grid";
+if(pair===3) area.style.gridTemplateColumns="repeat(2,300px)";
+else if(pair===6) area.style.gridTemplateColumns="repeat(3,250px)";
+else if(pair===10) area.style.gridTemplateColumns="repeat(4,180px)";
 
-
-// 配置＋カードサイズ変更
-
-if(pair === 3){
-
-area.style.gridTemplateColumns =
-"repeat(2,300px)";
-
-document.querySelectorAll(".card").forEach(c=>{
-c.style.width="300px";
-c.style.height="300px";
-});
-
-
-}
-
-
-else if(pair === 6){
-
-area.style.gridTemplateColumns =
-"repeat(3,250px)";
-
-
-document.querySelectorAll(".card").forEach(c=>{
-c.style.width="250px";
-c.style.height="250px";
-});
-
-
-}
-
-
-
-else if(pair === 10){
-
-area.style.gridTemplateColumns =
-"repeat(4,180px)";
-
-
-document.querySelectorAll(".card").forEach(c=>{
-c.style.width="180px";
-c.style.height="180px";
-});
-
-
-}
-
-
-let numberCount = 1;
-
-
+let numberCount=1;
 cards.forEach(icon=>{
-
-
-
 let div=document.createElement("div");
-
-
 div.className="card";
-
-
-
 let img=document.createElement("img");
-
-
 img.src="back.png";
-
-
-
 let number=document.createElement("div");
-
-
 number.className="cardNumber";
-
-
-
-number.innerHTML = numberCount;
-
+number.innerHTML=numberCount;
 numberCount++;
-
-
-
 div.appendChild(img);
-
 div.appendChild(number);
-
-
-
-
-
-
 div.onclick=()=>{
-
-
 playSound("flip");
-
-
 number.style.display="none";
-
-
-
 img.src=icon;
-
-
-
-if(!first){
-
-
-first={
-
-div,
-
-img,
-
-number,
-
-answer:icon
-
-
+if(!first){ first={div,img,number,answer:icon}; }
+else if(!second){ second={div,img,number,answer:icon}; setTimeout(checkPair,600); }
 };
-
-
-}
-
-
-else if(!second){
-
-
-
-second={
-
-div,
-
-img,
-
-number,
-
-answer:icon
-
-
-};
-
-
-
-setTimeout(checkPair,600);
-
-
-}
-
-
-
-};
-
-
-
 area.appendChild(div);
-
-
-
 });
 
-
-
+if(pair===3){
+document.querySelectorAll(".card").forEach(c=>{ c.style.width="300px"; c.style.height="300px"; });
+}else if(pair===6){
+document.querySelectorAll(".card").forEach(c=>{ c.style.width="250px"; c.style.height="250px"; });
+}else if(pair===10){
+document.querySelectorAll(".card").forEach(c=>{ c.style.width="180px"; c.style.height="180px"; });
 }
-
-
-
-
+}
 
 function checkPair(){
-
-
-
 if(first.answer===second.answer){
-
-
 playSound("correct");
-
-
-dropIcon(first.answer);
-
-
-
+dropIconBall(first.answer);
 setTimeout(()=>{
-
-
 first.div.style.visibility="hidden";
-
-
 second.div.style.visibility="hidden";
-
-
 },300);
-
-
-
-}
-
-else{
-
-
+}else{
 playSound("miss");
-
-
-
-first.img.src="back.png";
-
-second.img.src="back.png";
-
-
-
-first.number.style.display="flex";
-
-second.number.style.display="flex";
-
-
+first.img.src="back.png"; second.img.src="back.png";
+first.number.style.display="flex"; second.number.style.display="flex";
 }
-
-
-
-
-first=null;
-
-second=null;
-
-
-
+first=null; second=null;
 }
-
-
-
-
-
-
 
 function resetMemory(){
-
-
 memory.innerHTML="";
-
-
 memory.style.display="none";
-
-
-first=null;
-
-second=null;
-
-
+first=null; second=null;
+// 選択状態だけリセット（ボールはそのまま）
+selectedBalls.forEach(b=>{ b.isSelected=false; b.render.opacity=1; });
+selectedBalls=[];
+selectedIconType=null;
+noteIndex=0;
+updateSelectedCount();
 }
-
-
-
-
-
-
 
 startBtn.onclick=startMemory;
-
-
 resetBtn.onclick=resetMemory;
+optionBtn.onclick=()=>{ optionMenu.style.display="block"; };
+closeOption.onclick=()=>{ optionMenu.style.display="none"; };
 
+// ボールクリックイベントをセットアップ
+setupBallClickEvents();
 
-
-optionBtn.onclick=()=>{
-
-
-optionMenu.style.display="block";
-
-
-};
-
-
-
-closeOption.onclick=()=>{
-
-
-optionMenu.style.display="none";
-
-
-};
-
-
-
-
-
-
+// ボールのisActiveフラグ初期化（dropIconBallで設定するが念のため）
+Matter.Events.on(engine,"afterUpdate",()=>{
+balls.forEach(b=>{ if(b.isActive===undefined) b.isActive=true; });
+});
 
 function resize(){
-
-
-let scale=Math.min(
-
-innerWidth/WIDTH,
-
-innerHeight/HEIGHT
-
-
-);
-
-
-
-game.style.transform=
-
-`scale(${scale})`;
-
-
-
+let scale=Math.min(innerWidth/WIDTH,innerHeight/HEIGHT);
+game.style.transform=`scale(${scale})`;
 }
-
-
-
 window.onresize=resize;
-
 resize();
-
-
-
 </script>
-
-
 </body>
-
-
 </html>
