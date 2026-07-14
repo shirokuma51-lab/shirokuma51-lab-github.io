@@ -98,6 +98,32 @@ html, body {
   pointer-events: none;
 }
 
+/* ---------------- Lucky Chance（仮演出。Phase3-2でスロットUIに差し替え予定） ---------------- */
+
+#luckyChanceBanner {
+  position: absolute;
+  top: 900px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  width: 1000px;
+  padding: 40px;
+
+  background: rgba(255, 105, 180, .85);
+  color: white;
+  font-size: 90px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 40px;
+
+  z-index: 1500;
+  pointer-events: none;
+}
+
 /* ---------------- 設定メニュー ---------------- */
 
 #optionMenu {

@@ -13,6 +13,8 @@ import { PhysicsWorld } from "./physicsWorld.js";
 import { MemoryGame } from "./memoryGame.js";
 import { OptionMenu } from "./optionMenu.js";
 import { setupResizeHandler } from "./resizeHandler.js";
+import { LuckyChanceManager } from "./luckyChanceManager.js";
+import { LUCKY_CHANCE_PLACEHOLDER_DURATION_MS } from "./constants.js";
 
 function main() {
   // --- DOM要素の取得 ---
@@ -27,10 +29,26 @@ function main() {
   const cardCountSelect = document.getElementById("cardCount");
   const iconCountSelect = document.getElementById("iconCount");
 
+  const luckyChanceBannerEl = document.getElementById("luckyChanceBanner");
+
   // --- 各モジュールの初期化 ---
   const soundManager = new SoundManager();
   const physicsWorld = new PhysicsWorld(gameEl, soundManager);
-  const memoryGame = new MemoryGame(memoryAreaEl, soundManager, physicsWorld);
+  const luckyChanceManager = new LuckyChanceManager();
+  const memoryGame = new MemoryGame(memoryAreaEl, soundManager, physicsWorld, luckyChanceManager);
+
+  // 【仮演出】Lucky Chanceが発生したことを確認するための仮表示。
+  // Phase3-2でスロット演出ができたら、この中身を差し替える。
+  luckyChanceManager.onTrigger(() => {
+    luckyChanceBannerEl.style.display = "flex";
+    setTimeout(() => {
+      luckyChanceManager.finish();
+    }, LUCKY_CHANCE_PLACEHOLDER_DURATION_MS);
+  });
+
+  luckyChanceManager.onFinish(() => {
+    luckyChanceBannerEl.style.display = "none";
+  });
 
   const optionMenu = new OptionMenu({
     menuElement: optionMenuEl,

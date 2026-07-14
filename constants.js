@@ -46,6 +46,18 @@ export const CARD_CHECK_DELAY = 600;
 // ペア成立時、カードを非表示にするまでの待機時間(ms)
 export const CARD_HIDE_DELAY = 300;
 
+// ===============================================================
+// Lucky Chance 関連の設定
+// ===============================================================
+
+// ペアが揃った時にLucky Chanceが発生する確率（0〜1）
+// 例: 0.15 なら 15%の確率で発生
+export const LUCKY_CHANCE_TRIGGER_PROBABILITY = 0.15;
+
+// 【仮演出】スロット演出が完成するまでの間、発生確認用に表示するバナーの表示時間(ms)
+// Phase3-2でスロット演出ができたらこの値・仕組みごと差し替える想定
+export const LUCKY_CHANCE_PLACEHOLDER_DURATION_MS = 2000;
+
 // Matter.js 物理演算関連の設定
 export const PHYSICS_CONFIG = {
   wallThickness: 80,       // 床・壁の厚み

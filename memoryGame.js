@@ -17,11 +17,13 @@ export class MemoryGame {
    * @param {HTMLElement} areaElement - カードを描画するコンテナ要素(#memory)
    * @param {SoundManager} soundManager
    * @param {PhysicsWorld} physicsWorld - ペア成立時にアイコンを落下させるために使用
+   * @param {LuckyChanceManager} [luckyChanceManager] - ペア成立時にLucky Chance抽選を行うために使用（任意）
    */
-  constructor(areaElement, soundManager, physicsWorld) {
+  constructor(areaElement, soundManager, physicsWorld, luckyChanceManager = null) {
     this.area = areaElement;
     this.soundManager = soundManager;
     this.physicsWorld = physicsWorld;
+    this.luckyChanceManager = luckyChanceManager;
 
     this.first = null;   // 1枚目にめくったカード情報
     this.second = null;  // 2枚目にめくったカード情報
@@ -121,6 +123,11 @@ export class MemoryGame {
     if (this.first.answer === this.second.answer) {
       this.soundManager.play("correct");
       this.physicsWorld.dropIcon(this.first.answer);
+
+      // ペアが揃うたびに、一定確率でLucky Chanceの抽選を行う
+      if (this.luckyChanceManager) {
+        this.luckyChanceManager.rollForTrigger();
+      }
 
       setTimeout(() => {
         this.first.div.style.visibility = "hidden";
