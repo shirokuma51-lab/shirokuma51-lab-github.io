@@ -1,0 +1,131 @@
+/* ===============================================================
+   style.css
+   OBS神経衰弱オーバーレイのスタイル定義
+   =============================================================== */
+
+@font-face {
+  font-family: "Akogare";
+  src: url("../akogarenomarumoji.ttf");
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ゲーム全体のコンテナ（OBS用に1536x2048固定） */
+#game {
+  width: 1536px;
+  height: 2048px;
+  position: relative;
+  transform-origin: top left;
+}
+
+/* ---------------- ボタン ---------------- */
+
+#startBtn,
+#optionBtn,
+#resetBtn {
+  position: absolute;
+  z-index: 999;
+  cursor: pointer;
+}
+
+#startBtn {
+  top: 80px;
+  left: 250px;
+  width: 350px;
+}
+
+#optionBtn {
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+}
+
+#resetBtn {
+  top: 80px;
+  right: 250px;
+  width: 350px;
+}
+
+/* ---------------- カード ---------------- */
+
+#memory {
+  position: absolute;
+  top: 450px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  gap: 50px;
+  z-index: 2;
+}
+
+.card {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  cursor: pointer;
+}
+
+.card img {
+  width: 300px;
+  height: 300px;
+  border-radius: 30px;
+}
+
+.cardNumber {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Akogare";
+  font-size: 150px;
+  color: black;
+  text-shadow: 4px 4px 0 pink;
+
+  pointer-events: none;
+}
+
+/* ---------------- 設定メニュー ---------------- */
+
+#optionMenu {
+  position: absolute;
+  top: 350px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: rgba(0, 0, 0, .7);
+  color: white;
+
+  padding: 50px;
+  border-radius: 30px;
+  font-size: 45px;
+
+  display: none;
+  z-index: 1000;
+}
+
+select, button {
+  font-size: 35px;
+}
+
+/* ---------------- Matter.js 描画キャンバス ---------------- */
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
