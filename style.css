@@ -98,30 +98,61 @@ html, body {
   pointer-events: none;
 }
 
-/* ---------------- Lucky Chance（仮演出。Phase3-2でスロットUIに差し替え予定） ---------------- */
+/* ---------------- Lucky Chance スロット演出 ---------------- */
 
-#luckyChanceBanner {
+#slotMachine {
   position: absolute;
   top: 900px;
   left: 50%;
   transform: translateX(-50%);
 
-  display: none;
+  display: none; /* JSから表示切替 */
   align-items: center;
   justify-content: center;
+  gap: 20px;
 
-  width: 1000px;
-  padding: 40px;
+  padding: 30px 40px;
 
-  background: rgba(255, 105, 180, .85);
-  color: white;
-  font-size: 90px;
-  font-weight: bold;
-  text-align: center;
+  background: rgba(0, 0, 0, .6);
   border-radius: 40px;
 
   z-index: 1500;
   pointer-events: none;
+}
+
+/* 出目1マス分 */
+.slotOutcome {
+  width: 150px;
+  height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, .9);
+  border: 6px solid white;
+  border-radius: 20px;
+
+  font-family: "Akogare";
+  font-size: 50px;
+  color: #333;
+
+  transition: transform .15s ease, background .15s ease;
+}
+
+/* 回転中、現在の位置を示すハイライト */
+.slotOutcome.active {
+  background: #fff2ac;
+  border-color: #ffcc00;
+  transform: scale(1.1);
+}
+
+/* 停止して結果が確定したマスの強調表示 */
+.slotOutcome.result {
+  background: #ff69b4;
+  border-color: #ff1493;
+  color: white;
+  transform: scale(1.2);
 }
 
 /* ---------------- 設定メニュー ---------------- */

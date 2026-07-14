@@ -14,7 +14,13 @@ import { MemoryGame } from "./memoryGame.js";
 import { OptionMenu } from "./optionMenu.js";
 import { setupResizeHandler } from "./resizeHandler.js";
 import { LuckyChanceManager } from "./luckyChanceManager.js";
-import { LUCKY_CHANCE_PLACEHOLDER_DURATION_MS } from "./constants.js";
+import { SlotMachine } from "./slotMachine.js";
+import { SlotMachineUI } from "./slotMachineUI.js";
+import {
+  LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS,
+  LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MAX_MS,
+  LUCKY_CHANCE_RESULT_DISPLAY_MS
+} from "./constants.js";
 
 function main() {
   // --- DOM要素の取得 ---
@@ -29,7 +35,7 @@ function main() {
   const cardCountSelect = document.getElementById("cardCount");
   const iconCountSelect = document.getElementById("iconCount");
 
-  const luckyChanceBannerEl = document.getElementById("luckyChanceBanner");
+  const slotMachineEl = document.getElementById("slotMachine");
 
   // --- 各モジュールの初期化 ---
   const soundManager = new SoundManager();
@@ -37,17 +43,43 @@ function main() {
   const luckyChanceManager = new LuckyChanceManager();
   const memoryGame = new MemoryGame(memoryAreaEl, soundManager, physicsWorld, luckyChanceManager);
 
-  // 【仮演出】Lucky Chanceが発生したことを確認するための仮表示。
-  // Phase3-2でスロット演出ができたら、この中身を差し替える。
-  luckyChanceManager.onTrigger(() => {
-    luckyChanceBannerEl.style.display = "flex";
-    setTimeout(() => {
-      luckyChanceManager.finish();
-    }, LUCKY_CHANCE_PLACEHOLDER_DURATION_MS);
+  const slotMachine = new SlotMachine();
+  const slotMachineUI = new SlotMachineUI(slotMachineEl);
+
+  // スロットが1コマ進むたびに、見た目のハイライトを更新
+  slotMachine.onTick((outcome, index) => {
+    slotMachineUI.highlight(index);
   });
 
-  luckyChanceManager.onFinish(() => {
-    luckyChanceBannerEl.style.display = "none";
+  // スロットが停止し、結果が確定したら結果を強調表示 → 一定時間後に閉じる
+  slotMachine.onResult(outcome => {
+    const resultIndex = slotMachine.currentIndex;
+    slotMachineUI.showResult(resultIndex);
+
+    // 実際に「猫を多く落とす」などの報酬反映はPhase3-4で実装予定。
+    // 今はどの出目が確定したかコンソールで確認できるようにしている。
+    console.log("[LuckyChance] 結果:", outcome);
+
+    setTimeout(() => {
+      slotMachineUI.hide();
+      luckyChanceManager.finish();
+    }, LUCKY_CHANCE_RESULT_DISPLAY_MS);
+  });
+
+  // Lucky Chance発生 → スロット開始
+  luckyChanceManager.onTrigger(() => {
+    slotMachineUI.show();
+    slotMachine.start();
+
+    // 【仮仕様】Phase3-3で「3人同時押しSTOP」ができるまでの間、
+    // ランダムな時間で自動的に止まるようにしておく（動作確認用）。
+    const autoStopDelay =
+      Math.random() * (LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MAX_MS - LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS) +
+      LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS;
+
+    setTimeout(() => {
+      slotMachine.stop();
+    }, autoStopDelay);
   });
 
   const optionMenu = new OptionMenu({
