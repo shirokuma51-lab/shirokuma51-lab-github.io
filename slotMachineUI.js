@@ -1,29 +1,29 @@
 // ===============================================================
 // slotMachineUI.js
-// スロットの見た目（出目の一覧表示・現在位置のハイライト）を管理するクラス。
-// ロジック(SlotMachine)とは分離されており、SlotMachineが発行する
-// イベント(onTick / onResult)を受け取って画面を更新するだけの役割。
+// 3桁デジタルスロットの見た目（DOM描画）を管理するクラス。
+// ロジック(SlotMachine)から発行される onUpdate / onResult / onResume を
+// 受け取って画面を更新するだけの役割。
 // ===============================================================
 
-import { LUCKY_CHANCE_OUTCOMES } from "./constants.js";
+import { LUCKY_CHANCE_DIGIT_COUNT } from "./constants.js";
 
 export class SlotMachineUI {
   /**
-   * @param {HTMLElement} containerElement - 出目一覧を描画するコンテナ要素
+   * @param {HTMLElement} containerElement - 桁を描画するコンテナ要素
    */
   constructor(containerElement) {
     this.container = containerElement;
-    this._outcomeElements = [];
+    this._digitElements = [];
     this._render();
   }
 
-  /** 出目一覧のDOM要素を初期生成する */
+  /** 桁の数だけ枠（div）を初期生成する */
   _render() {
     this.container.innerHTML = "";
-    this._outcomeElements = LUCKY_CHANCE_OUTCOMES.map(outcome => {
+    this._digitElements = Array.from({ length: LUCKY_CHANCE_DIGIT_COUNT }, () => {
       const el = document.createElement("div");
-      el.className = "slotOutcome";
-      el.textContent = outcome.label;
+      el.className = "slotDigit";
+      el.textContent = "0";
       this.container.appendChild(el);
       return el;
     });
@@ -32,37 +32,46 @@ export class SlotMachineUI {
   /** スロット演出エリアを表示する */
   show() {
     this.container.style.display = "flex";
+    this._digitElements.forEach(el => el.classList.remove("stopped", "jackpot"));
   }
 
   /** スロット演出エリアを隠す */
   hide() {
     this.container.style.display = "none";
-    this._clearHighlight();
   }
 
   /**
-   * 指定したインデックスの出目をハイライト表示する（回転中の演出用）
-   * @param {number} index
+   * 桁の状態が変化するたびに呼ばれる想定。数字と停止/回転中の見た目を更新する。
+   * @param {Array<{digit:number, isSpinning:boolean}>} reelStates
    */
-  highlight(index) {
-    this._outcomeElements.forEach((el, i) => {
-      el.classList.toggle("active", i === index);
+  update(reelStates) {
+    reelStates.forEach((reel, i) => {
+      const el = this._digitElements[i];
+      if (!el) return;
+      el.textContent = String(reel.digit);
+      el.classList.toggle("stopped", !reel.isSpinning);
+    });
+  }
+
+  /** 制限時間切れで全桁が再始動した時の見た目（軽く赤く光らせて知らせる） */
+  flashResume() {
+    this._digitElements.forEach(el => {
+      el.classList.remove("stopped");
+      el.classList.add("resumeFlash");
+      setTimeout(() => el.classList.remove("resumeFlash"), 400);
     });
   }
 
   /**
-   * 結果確定時の強調表示（回転中とは異なる見た目にする）
-   * @param {number} index
+   * 結果確定時の強調表示
+   * @param {number[]} digits
+   * @param {boolean} isJackpot - 全桁ゾロ目かどうか
    */
-  showResult(index) {
-    this._clearHighlight();
-    const el = this._outcomeElements[index];
-    if (el) el.classList.add("result");
-  }
-
-  _clearHighlight() {
-    this._outcomeElements.forEach(el => {
-      el.classList.remove("active", "result");
+  showResult(digits, isJackpot) {
+    this._digitElements.forEach((el, i) => {
+      el.textContent = String(digits[i]);
+      el.classList.add("stopped");
+      el.classList.toggle("jackpot", isJackpot);
     });
   }
 }

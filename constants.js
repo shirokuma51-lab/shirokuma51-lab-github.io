@@ -54,26 +54,16 @@ export const CARD_HIDE_DELAY = 300;
 // 例: 0.15 なら 15%の確率で発生
 export const LUCKY_CHANCE_TRIGGER_PROBABILITY = 0.15;
 
-// スロットが1コマ進む間隔(ms)
-// ※将来「3人同時押しSTOP」を実装する際、この間隔＝1回のカウント長さとして扱う想定（仕様上は約0.5秒）
+// スロットの桁数（例: 3なら「7 7 7」のような3桁スロット）
+export const LUCKY_CHANCE_DIGIT_COUNT = 3;
+
+// 回転中の桁が1コマ進む間隔(ms)
 export const LUCKY_CHANCE_TICK_INTERVAL_MS = 500;
 
-// スロットの出目一覧。停止した位置の出目が結果になる。
-// catMultiplier: 正解時に落ちてくる猫の数の倍率（実際の反映処理はPhase3-4で実装）
-// 出目を増減・変更したい場合はここを編集するだけでOK
-export const LUCKY_CHANCE_OUTCOMES = [
-  { label: "×1", catMultiplier: 1 },
-  { label: "×2", catMultiplier: 2 },
-  { label: "×3", catMultiplier: 3 },
-  { label: "×5", catMultiplier: 5 },
-  { label: "はずれ", catMultiplier: 0 }
-];
-
-// 【仮仕様】STOPボタン(Phase3-3)が完成するまでの間、動作確認のために
-// スロットを自動的に止めるまでのランダムな待機時間の範囲(ms)。
-// Phase3-3で本物のSTOPボタンに差し替えたら、この2つの定数は不要になる。
-export const LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS = 3000;
-export const LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MAX_MS = 6000;
+// 1桁目が止まってから、残り全部の桁が止まるまでの制限時間(ms)。
+// この時間内に全桁止まらなければ、止めていた桁も含めて全部再び回り出す。
+// （＝複数人が息を合わせてボタンを押す必要がある、という仕様のキモ）
+export const LUCKY_CHANCE_STOP_WINDOW_MS = 500;
 
 // 結果が確定してから、演出を消すまでの表示時間(ms)
 export const LUCKY_CHANCE_RESULT_DISPLAY_MS = 2000;

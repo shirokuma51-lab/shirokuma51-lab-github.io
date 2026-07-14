@@ -113,46 +113,76 @@ html, body {
 
   padding: 30px 40px;
 
-  background: rgba(0, 0, 0, .6);
-  border-radius: 40px;
+  background: rgba(0, 0, 0, .7);
+  border-radius: 30px;
 
   z-index: 1500;
   pointer-events: none;
 }
 
-/* 出目1マス分 */
-.slotOutcome {
+/* 数字1桁分の窓 */
+.slotDigit {
   width: 150px;
-  height: 150px;
+  height: 220px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(255, 255, 255, .9);
-  border: 6px solid white;
-  border-radius: 20px;
+  background: #111;
+  border: 6px solid #666;
+  border-radius: 16px;
 
   font-family: "Akogare";
-  font-size: 50px;
-  color: #333;
+  font-size: 130px;
+  color: #ff5252;
+  text-shadow: 0 0 20px rgba(255, 82, 82, .8);
 
-  transition: transform .15s ease, background .15s ease;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-/* 回転中、現在の位置を示すハイライト */
-.slotOutcome.active {
-  background: #fff2ac;
+/* その桁が止まっている間の見た目（回転中と区別する） */
+.slotDigit.stopped {
   border-color: #ffcc00;
-  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 204, 0, .8);
+  color: #ffcc00;
+  text-shadow: 0 0 20px rgba(255, 204, 0, .9);
 }
 
-/* 停止して結果が確定したマスの強調表示 */
-.slotOutcome.result {
-  background: #ff69b4;
+/* 制限時間切れで再始動した瞬間の一瞬の演出 */
+.slotDigit.resumeFlash {
   border-color: #ff1493;
+  box-shadow: 0 0 30px rgba(255, 20, 147, .9);
+}
+
+/* 3桁揃った（ゾロ目）時の演出 */
+.slotDigit.jackpot {
+  border-color: #ff69b4;
+  color: #fff;
+  background: #ff1493;
+  box-shadow: 0 0 40px rgba(255, 105, 180, 1);
+}
+
+/* 【動作確認用の仮ボタン】Phase3-3で視聴者用ページに差し替え予定 */
+#slotStopTestBtn {
+  position: absolute;
+  top: 1150px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: none; /* JSから表示切替 */
+
+  padding: 20px 60px;
+  font-size: 40px;
+  font-weight: bold;
+
+  background: #ff5252;
   color: white;
-  transform: scale(1.2);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+
+  z-index: 1500;
 }
 
 /* ---------------- 設定メニュー ---------------- */

@@ -16,11 +16,7 @@ import { setupResizeHandler } from "./resizeHandler.js";
 import { LuckyChanceManager } from "./luckyChanceManager.js";
 import { SlotMachine } from "./slotMachine.js";
 import { SlotMachineUI } from "./slotMachineUI.js";
-import {
-  LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS,
-  LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MAX_MS,
-  LUCKY_CHANCE_RESULT_DISPLAY_MS
-} from "./constants.js";
+import { LUCKY_CHANCE_RESULT_DISPLAY_MS } from "./constants.js";
 
 function main() {
   // --- DOM要素の取得 ---
@@ -36,6 +32,7 @@ function main() {
   const iconCountSelect = document.getElementById("iconCount");
 
   const slotMachineEl = document.getElementById("slotMachine");
+  const slotStopTestBtn = document.getElementById("slotStopTestBtn");
 
   // --- 各モジュールの初期化 ---
   const soundManager = new SoundManager();
@@ -46,22 +43,28 @@ function main() {
   const slotMachine = new SlotMachine();
   const slotMachineUI = new SlotMachineUI(slotMachineEl);
 
-  // スロットが1コマ進むたびに、見た目のハイライトを更新
-  slotMachine.onTick((outcome, index) => {
-    slotMachineUI.highlight(index);
+  // 桁の状態（回転中/停止中/数字）が変化するたびに見た目を更新
+  slotMachine.onUpdate(reelStates => {
+    slotMachineUI.update(reelStates);
   });
 
-  // スロットが停止し、結果が確定したら結果を強調表示 → 一定時間後に閉じる
-  slotMachine.onResult(outcome => {
-    const resultIndex = slotMachine.currentIndex;
-    slotMachineUI.showResult(resultIndex);
+  // 制限時間内に揃わず、全桁が再始動した時の演出（軽く赤く光らせる）
+  slotMachine.onResume(() => {
+    slotMachineUI.flashResume();
+  });
+
+  // 3桁揃って結果が確定した時の処理
+  slotMachine.onResult(digits => {
+    const isJackpot = digits.every(d => d === digits[0]);
+    slotMachineUI.showResult(digits, isJackpot);
 
     // 実際に「猫を多く落とす」などの報酬反映はPhase3-4で実装予定。
-    // 今はどの出目が確定したかコンソールで確認できるようにしている。
-    console.log("[LuckyChance] 結果:", outcome);
+    // 今はどんな結果になったかコンソールで確認できるようにしている。
+    console.log("[LuckyChance] 結果:", digits.join(""), isJackpot ? "🎉ゾロ目！" : "");
 
     setTimeout(() => {
       slotMachineUI.hide();
+      if (slotStopTestBtn) slotStopTestBtn.style.display = "none";
       luckyChanceManager.finish();
     }, LUCKY_CHANCE_RESULT_DISPLAY_MS);
   });
@@ -70,17 +73,18 @@ function main() {
   luckyChanceManager.onTrigger(() => {
     slotMachineUI.show();
     slotMachine.start();
-
-    // 【仮仕様】Phase3-3で「3人同時押しSTOP」ができるまでの間、
-    // ランダムな時間で自動的に止まるようにしておく（動作確認用）。
-    const autoStopDelay =
-      Math.random() * (LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MAX_MS - LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS) +
-      LUCKY_CHANCE_PLACEHOLDER_AUTO_STOP_MIN_MS;
-
-    setTimeout(() => {
-      slotMachine.stop();
-    }, autoStopDelay);
+    if (slotStopTestBtn) slotStopTestBtn.style.display = "block";
   });
+
+  // 【動作確認用の仮ボタン】
+  // 本来は視聴者用Webページ→Firebase経由で複数人が押すことでslotMachine.press()が
+  // 呼ばれる想定（Phase3-3で実装）。それができるまでの間、配信者がこのボタンを
+  // 連打することで「誰かが押した」動きを手元で確認できるようにしている。
+  if (slotStopTestBtn) {
+    slotStopTestBtn.addEventListener("click", () => {
+      slotMachine.press();
+    });
+  }
 
   const optionMenu = new OptionMenu({
     menuElement: optionMenuEl,

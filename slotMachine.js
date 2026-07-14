@@ -1,68 +1,139 @@
 // ===============================================================
 // slotMachine.js
-// スロットの「回転」「停止」「出目の確定」を管理するクラス。
+// 3桁デジタルスロットのロジックを管理するクラス。
+//
+// 【仕様】
+// ・3桁がそれぞれ独立して回転する（0〜9をループ）
+// ・press() が呼ばれるたびに、まだ回転中の桁のうち一番左の桁が止まる
+// ・1桁目が止まった瞬間から LUCKY_CHANCE_STOP_WINDOW_MS のカウントダウンが始まる
+// ・その時間内に残りの桁も全部止まらなければ、止めていた桁も含めて
+//   全部また回転を再開する（＝複数人が息を合わせて押す必要がある）
+// ・3桁全部止まったら、その時点の数字で結果が自動確定する
 //
 // 【設計方針】
-// ・このクラスはDOM(見た目)を一切知らない。ロジックだけを持つ。
-//   見た目の更新は slotMachineUI.js が onTick / onResult を購読して行う。
-// ・stop() は今はPhase3-2の動作確認用に自動タイマーから呼んでいるが、
-//   Phase3-3では「3人同時押しが成立した瞬間」から呼ばれる形に差し替わる。
-//   stop()自体のインターフェースは変わらないため、呼び出し元を差し替えるだけで済む。
+// このクラスはDOMを一切知らない。誰が press() を呼ぶかも関知しない。
+// 今は動作確認用に main.js 側のテストボタンから press() を呼んでいるが、
+// Phase3-3で「視聴者ページ→Firebase→この press()」という流れに差し替える際も
+// press() のインターフェース自体は変わらないため、呼び出し元だけ差し替えればよい。
 // ===============================================================
 
-import { LUCKY_CHANCE_TICK_INTERVAL_MS, LUCKY_CHANCE_OUTCOMES } from "./constants.js";
+import { LUCKY_CHANCE_DIGIT_COUNT, LUCKY_CHANCE_TICK_INTERVAL_MS, LUCKY_CHANCE_STOP_WINDOW_MS } from "./constants.js";
 
 export class SlotMachine {
   constructor() {
-    this.currentIndex = 0;
-    this._timerId = null;
-    this._tickListeners = [];
+    this.reels = Array.from({ length: LUCKY_CHANCE_DIGIT_COUNT }, () => ({
+      digit: 0,
+      isSpinning: false
+    }));
+
+    this._spinTimerId = null;
+    this._stopWindowTimerId = null;
+
+    this._updateListeners = [];
     this._resultListeners = [];
+    this._resumeListeners = [];
   }
 
-  /** スロットが1コマ進むたびに呼ばれるコールバックを登録する */
-  onTick(callback) {
-    this._tickListeners.push(callback);
+  /** 桁の状態が変化するたびに呼ばれる（回転中の見た目更新・停止表示などに使用） */
+  onUpdate(callback) {
+    this._updateListeners.push(callback);
   }
 
-  /** スロットが停止し、結果が確定した時に呼ばれるコールバックを登録する */
+  /** 3桁全部止まり、結果が確定した時に呼ばれる */
   onResult(callback) {
     this._resultListeners.push(callback);
   }
 
-  /** スロットの回転を開始する */
-  start() {
-    this.currentIndex = 0;
-    this._emitTick();
+  /** 制限時間内に揃わず、止めていた桁も含めて全部再始動した時に呼ばれる */
+  onResume(callback) {
+    this._resumeListeners.push(callback);
+  }
 
-    this._timerId = setInterval(() => {
-      this.currentIndex = (this.currentIndex + 1) % LUCKY_CHANCE_OUTCOMES.length;
-      this._emitTick();
+  /** スロットの回転を開始する（3桁とも回転状態にする） */
+  start() {
+    this.reels.forEach(reel => {
+      reel.digit = Math.floor(Math.random() * 10);
+      reel.isSpinning = true;
+    });
+    this._clearStopWindow();
+    this._emitUpdate();
+
+    this._spinTimerId = setInterval(() => {
+      this.reels.forEach(reel => {
+        if (reel.isSpinning) {
+          reel.digit = (reel.digit + 1) % 10;
+        }
+      });
+      this._emitUpdate();
     }, LUCKY_CHANCE_TICK_INTERVAL_MS);
   }
 
-  _emitTick() {
-    const outcome = LUCKY_CHANCE_OUTCOMES[this.currentIndex];
-    this._tickListeners.forEach(cb => cb(outcome, this.currentIndex));
-  }
-
   /**
-   * スロットを停止し、その時点の出目を結果として確定する。
-   * @returns {Object|null} 確定した出目（回転中でなければnull）
+   * STOPボタンが押された時に呼び出す。
+   * 現在回転中の桁のうち、一番左の桁を止める。
    */
-  stop() {
-    if (this._timerId === null) return null;
+  press() {
+    const targetIndex = this.reels.findIndex(reel => reel.isSpinning);
+    if (targetIndex === -1) return; // 全桁すでに停止済み
 
-    clearInterval(this._timerId);
-    this._timerId = null;
+    this.reels[targetIndex].isSpinning = false;
+    const stoppedCount = this.reels.filter(r => !r.isSpinning).length;
 
-    const outcome = LUCKY_CHANCE_OUTCOMES[this.currentIndex];
-    this._resultListeners.forEach(cb => cb(outcome));
-    return outcome;
+    // 1桁目が止まった瞬間にカウントダウンを開始する
+    if (stoppedCount === 1) {
+      this._stopWindowTimerId = setTimeout(() => {
+        this._handleWindowExpired();
+      }, LUCKY_CHANCE_STOP_WINDOW_MS);
+    }
+
+    this._emitUpdate();
+
+    if (stoppedCount === this.reels.length) {
+      this._confirmResult();
+    }
   }
 
-  /** 現在回転中かどうか */
-  get isSpinning() {
-    return this._timerId !== null;
+  /** 制限時間切れ：止めていた桁も含めて全部回転を再開する */
+  _handleWindowExpired() {
+    this._stopWindowTimerId = null;
+    this.reels.forEach(reel => {
+      reel.isSpinning = true;
+    });
+    this._resumeListeners.forEach(cb => cb());
+    this._emitUpdate();
+  }
+
+  /** 3桁揃ったので結果を確定し、回転を完全に停止する */
+  _confirmResult() {
+    this._clearStopWindow();
+
+    if (this._spinTimerId !== null) {
+      clearInterval(this._spinTimerId);
+      this._spinTimerId = null;
+    }
+
+    const digits = this.reels.map(r => r.digit);
+    this._resultListeners.forEach(cb => cb(digits));
+  }
+
+  _clearStopWindow() {
+    if (this._stopWindowTimerId !== null) {
+      clearTimeout(this._stopWindowTimerId);
+      this._stopWindowTimerId = null;
+    }
+  }
+
+  _emitUpdate() {
+    const snapshot = this.reels.map(r => ({ ...r }));
+    this._updateListeners.forEach(cb => cb(snapshot));
+  }
+
+  /** 緊急停止（Phase3-5）用に、途中でも強制的に回転を止める */
+  forceStop() {
+    if (this._spinTimerId !== null) {
+      clearInterval(this._spinTimerId);
+      this._spinTimerId = null;
+    }
+    this._clearStopWindow();
   }
 }
