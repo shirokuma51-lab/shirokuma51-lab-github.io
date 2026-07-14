@@ -1,11 +1,12 @@
 /* ===============================================================
    style.css
    OBS神経衰弱オーバーレイのスタイル定義
+   （全ファイルをリポジトリ直下に置くフラット構成用）
    =============================================================== */
 
 @font-face {
   font-family: "Akogare";
-  src: url("../akogarenomarumoji.ttf");
+  src: url("akogarenomarumoji.ttf");
 }
 
 html, body {
