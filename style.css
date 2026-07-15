@@ -54,6 +54,30 @@ html, body {
   width: 350px;
 }
 
+/* Lucky Chance緊急停止ボタン（配信者専用。常時表示） */
+#emergencyStopBtn {
+  position: absolute;
+  top: 200px;
+  right: 60px;
+
+  padding: 15px 30px;
+  font-size: 24px;
+  font-weight: bold;
+
+  background: #444;
+  color: #ff5252;
+  border: 3px solid #ff5252;
+  border-radius: 12px;
+  cursor: pointer;
+
+  z-index: 2000;
+}
+
+#emergencyStopBtn:active {
+  background: #ff5252;
+  color: white;
+}
+
 /* ---------------- カード ---------------- */
 
 #memory {

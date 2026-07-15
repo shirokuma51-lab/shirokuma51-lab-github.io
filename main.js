@@ -41,6 +41,7 @@ function main() {
 
   const slotMachineEl = document.getElementById("slotMachine");
   const slotStopTestBtn = document.getElementById("slotStopTestBtn");
+  const emergencyStopBtn = document.getElementById("emergencyStopBtn");
 
   // --- 各モジュールの初期化 ---
   const soundManager = new SoundManager();
@@ -67,6 +68,12 @@ function main() {
     }
   }
 
+  /** スロット演出・仮テストボタンを非表示に戻す（結果確定時・緊急停止時の両方で使う） */
+  function closeLuckyChanceUI() {
+    slotMachineUI.hide();
+    if (slotStopTestBtn) slotStopTestBtn.style.display = "none";
+  }
+
   // 桁の状態（回転中/停止中/数字）が変化するたびに見た目を更新
   // ＋ 視聴者ページにも同じ状態を配信する（Firebase未設定なら内部で無視される）
   slotMachine.onUpdate(reelStates => {
@@ -91,8 +98,7 @@ function main() {
     console.log("[LuckyChance] 結果:", digits.join(""), isJackpot ? "🎉ゾロ目！" : "");
 
     setTimeout(() => {
-      slotMachineUI.hide();
-      if (slotStopTestBtn) slotStopTestBtn.style.display = "none";
+      closeLuckyChanceUI();
       luckyChanceManager.finish();
       cleanupLuckyChanceSession();
     }, LUCKY_CHANCE_RESULT_DISPLAY_MS);
@@ -121,6 +127,21 @@ function main() {
   if (slotStopTestBtn) {
     slotStopTestBtn.addEventListener("click", () => {
       slotMachine.press();
+    });
+  }
+
+  // Lucky Chance緊急停止（配信者専用）。
+  // 発生していない時に押しても何も起きない。発生中に押すと、
+  // その場でスロットを止めて演出を消し、視聴者ページのSTOPボタンも
+  // 自動的に押せなくする（結果は確定させず、報酬も発生しない）。
+  if (emergencyStopBtn) {
+    emergencyStopBtn.addEventListener("click", () => {
+      if (!luckyChanceManager.isActive) return;
+
+      slotMachine.forceStop();
+      closeLuckyChanceUI();
+      luckyChanceManager.finish();
+      cleanupLuckyChanceSession();
     });
   }
 
