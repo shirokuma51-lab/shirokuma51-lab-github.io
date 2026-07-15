@@ -1,0 +1,74 @@
+/* ===============================================================
+   viewer.css
+   視聴者用STOPページのスタイル。
+   スマホでの利用を想定し、画面いっぱいに大きなボタンを配置する。
+   =============================================================== */
+
+/* 数字1桁分の見た目（色・光り方）は共通ファイルを読み込む */
+@import url("slotMachine.css");
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+
+  background: #111;
+  font-family: sans-serif;
+}
+
+#status {
+  color: white;
+  font-size: 20px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* OBS側と同じスロットをここにも表示する */
+#slotContainer {
+  display: none; /* JSから表示切替 */
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+#resultText {
+  display: none; /* JSから表示切替 */
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#stopBtn {
+  width: 70vw;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+
+  border-radius: 50%;
+  border: none;
+
+  background: #ff5252;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+
+  box-shadow: 0 0 40px rgba(255, 82, 82, .6);
+}
+
+/* 押せない状態（Lucky Chance発生前・参加権なしなど） */
+#stopBtn:disabled {
+  background: #555;
+  box-shadow: none;
+  color: #999;
+}
+
+/* 押した瞬間の視覚フィードバック */
+#stopBtn:active:not(:disabled) {
+  transform: scale(0.95);
+}

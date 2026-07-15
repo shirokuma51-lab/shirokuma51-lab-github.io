@@ -23,3 +23,11 @@ export const firebaseConfig = {
 // Firestoreの中で使うコレクション名（視聴者データを入れる場所）
 // 将来コレクション構成を変える場合はここだけ直せばよい
 export const VIEWERS_COLLECTION = "viewers";
+
+// Lucky Chanceの「現在進行中のセッション」を1件だけ保持するドキュメント
+// （視聴者ページはこれを見て「今押せるかどうか」を判断する）
+export const LUCKY_CHANCE_COLLECTION = "luckyChance";
+export const LUCKY_CHANCE_SESSION_DOC = "currentSession";
+
+// 視聴者がSTOPを押すたびに1件追加されるコレクション
+export const LUCKY_CHANCE_PRESSES_COLLECTION = "luckyChancePresses";

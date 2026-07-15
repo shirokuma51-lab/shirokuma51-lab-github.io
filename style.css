@@ -100,6 +100,9 @@ html, body {
 
 /* ---------------- Lucky Chance スロット演出 ---------------- */
 
+/* 数字1桁分の見た目（色・光り方）は共通ファイルを読み込む */
+@import url("slotMachine.css");
+
 #slotMachine {
   position: absolute;
   top: 900px;
@@ -120,47 +123,12 @@ html, body {
   pointer-events: none;
 }
 
-/* 数字1桁分の窓 */
-.slotDigit {
+/* OBS(1536x2048)用に、共通デザインより一回り大きく表示する */
+#slotMachine .slotDigit {
   width: 150px;
   height: 220px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #111;
-  border: 6px solid #666;
-  border-radius: 16px;
-
-  font-family: "Akogare";
   font-size: 130px;
-  color: #ff5252;
-  text-shadow: 0 0 20px rgba(255, 82, 82, .8);
-
-  transition: border-color .15s ease, box-shadow .15s ease;
-}
-
-/* その桁が止まっている間の見た目（回転中と区別する） */
-.slotDigit.stopped {
-  border-color: #ffcc00;
-  box-shadow: 0 0 30px rgba(255, 204, 0, .8);
-  color: #ffcc00;
-  text-shadow: 0 0 20px rgba(255, 204, 0, .9);
-}
-
-/* 制限時間切れで再始動した瞬間の一瞬の演出 */
-.slotDigit.resumeFlash {
-  border-color: #ff1493;
-  box-shadow: 0 0 30px rgba(255, 20, 147, .9);
-}
-
-/* 3桁揃った（ゾロ目）時の演出 */
-.slotDigit.jackpot {
-  border-color: #ff69b4;
-  color: #fff;
-  background: #ff1493;
-  box-shadow: 0 0 40px rgba(255, 105, 180, 1);
+  border-width: 6px;
 }
 
 /* 【動作確認用の仮ボタン】Phase3-3で視聴者用ページに差し替え予定 */

@@ -1,0 +1,49 @@
+/* ===============================================================
+   slotMachine.css
+   Lucky Chanceのスロット「1桁分の見た目」の共通スタイル。
+   OBS側(style.css)・視聴者ページ側(viewer.css)の両方から読み込む。
+   コンテナの配置(絶対配置か中央寄せか等)は、それぞれのCSS側で決める。
+   =============================================================== */
+
+/* 数字1桁分の窓（デフォルトはスマホ向けの小さめサイズ） */
+.slotDigit {
+  width: 80px;
+  height: 120px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #111;
+  border: 5px solid #666;
+  border-radius: 12px;
+
+  font-family: "Akogare", sans-serif;
+  font-size: 60px;
+  color: #ff5252;
+  text-shadow: 0 0 15px rgba(255, 82, 82, .8);
+
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+/* その桁が止まっている間の見た目（回転中と区別する） */
+.slotDigit.stopped {
+  border-color: #ffcc00;
+  box-shadow: 0 0 25px rgba(255, 204, 0, .8);
+  color: #ffcc00;
+  text-shadow: 0 0 15px rgba(255, 204, 0, .9);
+}
+
+/* 制限時間切れで再始動した瞬間の一瞬の演出 */
+.slotDigit.resumeFlash {
+  border-color: #ff1493;
+  box-shadow: 0 0 25px rgba(255, 20, 147, .9);
+}
+
+/* 3桁揃った（ゾロ目）時の演出 */
+.slotDigit.jackpot {
+  border-color: #ff69b4;
+  color: #fff;
+  background: #ff1493;
+  box-shadow: 0 0 35px rgba(255, 105, 180, 1);
+}
