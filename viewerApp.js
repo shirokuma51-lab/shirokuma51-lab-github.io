@@ -8,10 +8,15 @@
 //    発行される想定。IDが無い、または参加権が無い場合はボタンを表示しない。
 // 2. Firestoreの「現在のLucky Chanceセッション」をリアルタイムで見て、
 //    - 発生中なら、OBS側と同じスロット表示を出し、STOPボタンを押せるようにする
-//    - スロットの桁の状態（回転中/停止中/数字）もこの中に含まれているので、
+//    - スロットの桁の状態（回転中/停止中/画像）もこの中に含まれているので、
 //      OBS側と同じ SlotMachineUI を使ってそのまま描画できる
 // 3. ボタンが押されたら、押下記録をFirestoreに1件書き込む。
 //    実際にスロットの桁を止める処理はOBS側(main.js)が行う。
+//
+// 【STOPボタンの見た目】
+// <img>要素（肉球画像）を使っており、指で押している間だけ
+// 「押し込んだ状態」の画像に一時的に差し替えることで押した感触を出している。
+// 実際にFirestoreへ記録を送るのは従来通り click イベント。
 // ===============================================================
 
 import { doc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -23,6 +28,7 @@ import {
 } from "./firebaseConfig.js";
 import { canParticipate } from "./participationService.js";
 import { SlotMachineUI } from "./slotMachineUI.js";
+import { STOP_BUTTON_NORMAL_IMAGE, STOP_BUTTON_PRESSED_IMAGE } from "./constants.js";
 
 /** URLの ?id= パラメータから視聴者IDを取得する */
 function getViewerIdFromURL() {
@@ -37,6 +43,11 @@ async function main() {
   const resultTextEl = document.getElementById("resultText");
 
   const slotMachineUI = new SlotMachineUI(slotContainerEl);
+
+  /** ボタンを押せる/押せない状態に切り替える（imgには.disabledが無いのでクラスで制御） */
+  function setStopBtnEnabled(enabled) {
+    stopBtn.classList.toggle("disabled", !enabled);
+  }
 
   const viewerId = getViewerIdFromURL();
   if (!viewerId) {
@@ -71,7 +82,7 @@ async function main() {
       const data = snapshot.data();
       if (!data) {
         statusEl.textContent = "Lucky Chanceの発生を待っています…";
-        stopBtn.disabled = true;
+        setStopBtnEnabled(false);
         slotMachineUI.hide();
         return;
       }
@@ -81,7 +92,7 @@ async function main() {
 
       if (isSessionActive) {
         statusEl.textContent = "Lucky Chance発生中！STOPを押そう！";
-        stopBtn.disabled = false;
+        setStopBtnEnabled(true);
         resultTextEl.style.display = "none";
 
         // OBS側と同じスロットの状態をそのまま描画する
@@ -98,7 +109,7 @@ async function main() {
         }
       } else {
         statusEl.textContent = "Lucky Chanceの発生を待っています…";
-        stopBtn.disabled = true;
+        setStopBtnEnabled(false);
 
         setTimeout(() => {
           slotMachineUI.hide();
@@ -111,8 +122,8 @@ async function main() {
         slotMachineUI.showResult(data.resultDigits, Boolean(data.isJackpot));
         resultTextEl.style.display = "block";
         resultTextEl.textContent = data.isJackpot
-          ? `🎉 ${data.resultDigits.join("")} ゾロ目！`
-          : `結果: ${data.resultDigits.join("")}`;
+          ? `🎉 ゾロ目！`
+          : `結果発表！`;
       }
     },
     err => {
@@ -121,12 +132,25 @@ async function main() {
     }
   );
 
+  // 【演出】指で押している間だけ「押し込んだ状態」の画像に差し替える
+  const showPressedImage = () => {
+    if (stopBtn.classList.contains("disabled")) return;
+    stopBtn.src = STOP_BUTTON_PRESSED_IMAGE;
+  };
+  const showNormalImage = () => {
+    stopBtn.src = STOP_BUTTON_NORMAL_IMAGE;
+  };
+  stopBtn.addEventListener("pointerdown", showPressedImage);
+  stopBtn.addEventListener("pointerup", showNormalImage);
+  stopBtn.addEventListener("pointercancel", showNormalImage);
+  stopBtn.addEventListener("pointerleave", showNormalImage);
+
   // STOPボタン押下 → Firestoreに1件記録
   stopBtn.addEventListener("click", async () => {
     if (!isSessionActive || !currentSessionId) return;
 
     // 連打で同じ人が何件も送ってしまわないよう、一瞬だけ操作をロックする
-    stopBtn.disabled = true;
+    setStopBtnEnabled(false);
 
     try {
       await addDoc(collection(db, LUCKY_CHANCE_PRESSES_COLLECTION), {
@@ -139,7 +163,7 @@ async function main() {
     }
 
     setTimeout(() => {
-      if (isSessionActive) stopBtn.disabled = false;
+      if (isSessionActive) setStopBtnEnabled(true);
     }, 300);
   });
 }

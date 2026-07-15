@@ -134,3 +134,10 @@ export const BACKGROUND_OPTIONS = {
 
 // ページを開いた時点で適用しておく背景キー（BACKGROUND_OPTIONSのキーのいずれか）
 export const DEFAULT_BACKGROUND_KEY = "transparent";
+
+// ===============================================================
+// 視聴者ページ(viewer.html)のSTOPボタン画像
+// 押している間だけ「押し込んだ状態」の画像に切り替える
+// ===============================================================
+export const STOP_BUTTON_NORMAL_IMAGE = "paw_normal.png";
+export const STOP_BUTTON_PRESSED_IMAGE = "paw_pressed.png";
