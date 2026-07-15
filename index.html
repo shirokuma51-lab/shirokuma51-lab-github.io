@@ -14,20 +14,23 @@
 
 <div id="game">
 
-  <img id="startBtn" src="start.png">
-  <img id="optionBtn" src="option.png">
-  <img id="resetBtn" src="reset.png">
+  <img id="startBtn" class="btn-interactive" src="start.png">
+  <img id="optionBtn" class="btn-interactive" src="option.png">
+  <img id="resetBtn" class="btn-interactive" src="reset.png">
 
   <!-- Lucky Chanceを強制中断する配信者用ボタン。常時表示しておき、発生していない時は押しても何も起きない -->
-  <button id="emergencyStopBtn">緊急停止</button>
+  <button id="emergencyStopBtn" class="btn-interactive">緊急停止</button>
 
   <div id="memory"></div>
+
+  <!-- 【演出】連続正解時の「N COMBO!」表示。中身と表示タイミングはJS(memoryGame.js)側で制御 -->
+  <div id="comboDisplay"></div>
 
   <!-- Lucky Chance スロット演出エリア -->
   <div id="slotMachine"></div>
 
   <!-- 【動作確認用の仮ボタン】視聴者用ページができるまでの間、配信者がここを押して桁を止める -->
-  <button id="slotStopTestBtn">STOP（テスト用）</button>
+  <button id="slotStopTestBtn" class="btn-interactive">STOP（テスト用）</button>
 
   <div id="optionMenu">
     <h2>設定</h2>
@@ -50,7 +53,7 @@
     </select>
     <br><br>
 
-    <button id="closeOption">決定</button>
+    <button id="closeOption" class="btn-interactive">決定</button>
   </div>
 
 </div>

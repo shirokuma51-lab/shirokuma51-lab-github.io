@@ -4,6 +4,9 @@
    （全ファイルをリポジトリ直下に置くフラット構成用）
    =============================================================== */
 
+/* 演出用のアニメーションクラスは effects.css にまとめている */
+@import url("effects.css");
+
 @font-face {
   font-family: "Akogare";
   src: url("akogarenomarumoji.ttf");
@@ -88,6 +91,9 @@ html, body {
   display: none;
   gap: 50px;
   z-index: 2;
+
+  /* 【演出】カードの3Dフリップに遠近感を持たせるための設定 */
+  perspective: 1000px;
 }
 
 .card {
@@ -95,6 +101,12 @@ html, body {
   height: 300px;
   position: relative;
   cursor: pointer;
+
+  /* 【演出】カード自体をY軸回転させるための設定（.card-flipクラスと対になる） */
+  transform-style: preserve-3d;
+  /* 【演出】光沢(.card-gloss)やリング(.correct-ring)を角丸の内側だけに収める */
+  overflow: hidden;
+  border-radius: 30px;
 }
 
 .card img {
@@ -119,6 +131,23 @@ html, body {
   color: black;
   text-shadow: 4px 4px 0 pink;
 
+  pointer-events: none;
+}
+
+/* 【演出】「N COMBO!」表示。普段は透明にしておき、.combo-popクラスが付いた時だけ再生される */
+#comboDisplay {
+  position: absolute;
+  top: 380px;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  font-family: "Akogare";
+  font-size: 70px;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 140, 0, 0.9), 3px 3px 0 rgba(0, 0, 0, 0.3);
+
+  opacity: 0;
+  z-index: 900;
   pointer-events: none;
 }
 
@@ -183,7 +212,6 @@ html, body {
   position: absolute;
   top: 350px;
   left: 50%;
-  transform: translateX(-50%);
 
   background: rgba(0, 0, 0, .7);
   color: white;
@@ -194,6 +222,12 @@ html, body {
 
   display: none;
   z-index: 1000;
+
+  /* 【演出】開閉アニメーションの初期状態（非表示時は少し縮小＋透明） */
+  opacity: 0;
+  transform: translateX(-50%) scale(0.9);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none; /* 非表示中はクリックを受け付けない */
 }
 
 select, button {

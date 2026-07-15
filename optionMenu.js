@@ -4,6 +4,8 @@
 // 選択値の取得を管理するクラス。
 // ===============================================================
 
+import { EFFECT_OPTION_MENU_DURATION_MS } from "./constants.js";
+
 export class OptionMenu {
   /**
    * @param {Object} elements
@@ -22,14 +24,25 @@ export class OptionMenu {
     closeButton.addEventListener("click", () => this.close());
   }
 
-  /** 設定メニューを表示する */
+  /** 設定メニューを表示する（フェードイン＋scale 0.9→1.0） */
   open() {
     this.menuElement.style.display = "block";
+
+    // display:none から block に変えた直後にクラスを付けると
+    // ブラウザがtransitionを認識できないことがあるため、
+    // 1フレーム待ってから表示用クラスを付ける（CSSアニメーションの定石）
+    requestAnimationFrame(() => {
+      this.menuElement.classList.add("option-menu-visible");
+    });
   }
 
-  /** 設定メニューを閉じる */
+  /** 設定メニューを閉じる（フェードアウト＋scale 1.0→0.9、終了後にdisplay:noneへ） */
   close() {
-    this.menuElement.style.display = "none";
+    this.menuElement.classList.remove("option-menu-visible");
+
+    setTimeout(() => {
+      this.menuElement.style.display = "none";
+    }, EFFECT_OPTION_MENU_DURATION_MS);
   }
 
   /** 現在選択されているペア数を取得する */

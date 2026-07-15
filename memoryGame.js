@@ -9,7 +9,9 @@ import {
   CARD_BACK_IMAGE,
   GRID_LAYOUTS,
   CARD_CHECK_DELAY,
-  CARD_HIDE_DELAY
+  EFFECT_CARD_FLIP_SWAP_MS,
+  EFFECT_CORRECT_DURATION_MS,
+  EFFECT_MISS_SHAKE_DURATION_MS
 } from "./constants.js";
 
 export class MemoryGame {
@@ -28,6 +30,10 @@ export class MemoryGame {
     this.first = null;   // 1枚目にめくったカード情報
     this.second = null;  // 2枚目にめくったカード情報
     this._pendingCardSize = null;
+
+    // 【演出用】連続正解数。ゲームの当たり判定には一切影響しない、
+    // 「N COMBO!」表示のためだけに数えているカウンタ。
+    this.comboCount = 0;
   }
 
   /**
@@ -107,8 +113,10 @@ export class MemoryGame {
     if (card === this.first || card === this.second) return;
 
     this.soundManager.play("flip");
-    card.number.style.display = "none";
-    card.img.src = card.answer;
+
+    // 【演出】カードめくり（3D Flip）＋光沢演出をトリガーする。
+    // 実際の画像切り替え・番号非表示は、アニメーションの中間地点（90度回転時）で行う。
+    this._playFlipAnimation(card);
 
     if (!this.first) {
       this.first = card;
@@ -118,31 +126,119 @@ export class MemoryGame {
     }
   }
 
+  /**
+   * 【演出】カードめくりアニメーション（CSS Animationのクラスを付け外しするだけ）。
+   * ゲームロジックには影響せず、見た目のタイミング調整のみを行う。
+   * @param {{div:HTMLElement, img:HTMLElement, number:HTMLElement, answer:string}} card
+   */
+  _playFlipAnimation(card) {
+    card.div.classList.add("card-flip", "card-gloss");
+
+    // 90度回転した瞬間（アニメーションの半分の時間）に、裏面→表面の画像へ切り替える
+    setTimeout(() => {
+      card.number.style.display = "none";
+      card.img.src = card.answer;
+    }, EFFECT_CARD_FLIP_SWAP_MS);
+
+    // アニメーション終了後、クラスを外して元の状態に戻す
+    card.div.addEventListener(
+      "animationend",
+      () => card.div.classList.remove("card-flip", "card-gloss"),
+      { once: true }
+    );
+  }
+
   /** 2枚めくったカードが揃っているか判定する */
   _checkPair() {
-    if (this.first.answer === this.second.answer) {
+    // setTimeoutのコールバックが実行される時点では this.first / this.second は
+    // 既にnullになっているため、先にローカル変数へ退避しておく
+    const firstCard = this.first;
+    const secondCard = this.second;
+
+    if (firstCard.answer === secondCard.answer) {
       this.soundManager.play("correct");
-      this.physicsWorld.dropIcon(this.first.answer);
 
-      // ペアが揃うたびに、一定確率でLucky Chanceの抽選を行う
-      if (this.luckyChanceManager) {
-        this.luckyChanceManager.rollForTrigger();
-      }
+      // 【演出】連続正解数を更新し、コンボ表示をトリガーする（見た目のみ、判定には無関係）
+      this.comboCount += 1;
+      this._showComboEffect();
 
+      // 【演出】拡大・ポップ＋リング＋キラキラをトリガーする
+      this._playCorrectAnimation(firstCard);
+      this._playCorrectAnimation(secondCard);
+
+      // 演出（ポップ＆リング）が見えるよう少し待ってから、
+      // アイコン落下・Lucky Chance抽選・カード非表示をまとめて行う
       setTimeout(() => {
-        this.first.div.style.visibility = "hidden";
-        this.second.div.style.visibility = "hidden";
-      }, CARD_HIDE_DELAY);
+        this.physicsWorld.dropIcon(firstCard.answer);
+
+        // ペアが揃うたびに、一定確率でLucky Chanceの抽選を行う
+        if (this.luckyChanceManager) {
+          this.luckyChanceManager.rollForTrigger();
+        }
+
+        firstCard.div.style.visibility = "hidden";
+        secondCard.div.style.visibility = "hidden";
+      }, EFFECT_CORRECT_DURATION_MS);
     } else {
       this.soundManager.play("miss");
-      this.first.img.src = CARD_BACK_IMAGE;
-      this.second.img.src = CARD_BACK_IMAGE;
-      this.first.number.style.display = "flex";
-      this.second.number.style.display = "flex";
+
+      // 【演出】連続正解が途切れたので、コンボ数をリセットする
+      this.comboCount = 0;
+
+      // 【演出】シェイクさせてから裏面に戻す
+      this._playMissAnimation(firstCard, secondCard);
     }
 
     this.first = null;
     this.second = null;
+  }
+
+  /**
+   * 【演出】正解時のポップ＆リング＆キラキラ演出をトリガーする（見た目のみ）。
+   * @param {{div:HTMLElement}} card
+   */
+  _playCorrectAnimation(card) {
+    card.div.classList.add("pop", "correct-ring", "sparkle");
+    // このカードは演出後すぐ非表示（visibility:hidden）になるため、
+    // クラスの明示的な取り外しは行わない（次のゲーム開始時にDOMごと作り直される）
+  }
+
+  /**
+   * 【演出】不正解時のシェイク演出をトリガーし、終了後に裏面へ戻す（見た目のみ）。
+   * @param {{div:HTMLElement, img:HTMLElement, number:HTMLElement}} first
+   * @param {{div:HTMLElement, img:HTMLElement, number:HTMLElement}} second
+   */
+  _playMissAnimation(first, second) {
+    first.div.classList.add("shake");
+    second.div.classList.add("shake");
+
+    setTimeout(() => {
+      first.img.src = CARD_BACK_IMAGE;
+      second.img.src = CARD_BACK_IMAGE;
+      first.number.style.display = "flex";
+      second.number.style.display = "flex";
+      first.div.classList.remove("shake");
+      second.div.classList.remove("shake");
+    }, EFFECT_MISS_SHAKE_DURATION_MS);
+  }
+
+  /**
+   * 【演出】画面上の「N COMBO!」表示を更新する（見た目のみ）。
+   * 対応する要素(#comboDisplay)がHTML側に無い場合は何もしない。
+   * 効果音: コンボ更新時の効果音(combo.mp3)は素材が未実装のため未再生。
+   *         素材が追加され次第、ここで this.soundManager.play("combo") を呼び出す想定。
+   */
+  _showComboEffect() {
+    const comboEl = document.getElementById("comboDisplay");
+    if (!comboEl) return;
+
+    comboEl.textContent = `${this.comboCount} COMBO!`;
+
+    // 連続してコンボが発生した時にもアニメーションが再生されるよう、
+    // 一度クラスを外してリフローを挟んでから付け直す（CSSアニメーション再トリガーの定石）
+    comboEl.classList.remove("combo-pop");
+    void comboEl.offsetWidth;
+    comboEl.classList.add("combo-pop");
   }
 
   /** ゲーム状態を初期化する（カードを全て削除し、エリアを非表示にする） */
@@ -151,5 +247,6 @@ export class MemoryGame {
     this.area.style.display = "none";
     this.first = null;
     this.second = null;
+    this.comboCount = 0; // 【演出用】コンボ数もリセットする
   }
 }

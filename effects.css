@@ -1,0 +1,175 @@
+/* ===============================================================
+   effects.css
+   ゲームの演出（アニメーション）用クラスをまとめたファイル。
+   ここに書かれたクラスは、JS側から「付け外しするだけ」で使う想定。
+   ロジックには一切関わらない、見た目専用のスタイル。
+
+   目次
+   - カードめくり演出 (.card-flip / .card-gloss)
+   - 正解演出 (.pop / .correct-ring / .sparkle)
+   - 不正解演出 (.shake)
+   - コンボ表示演出 (.combo-pop)
+   - ボタン共通演出 (.btn-interactive)
+   - オプションメニュー開閉演出 (#optionMenu.option-menu-visible)
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   ① カードめくり演出（3D Flip）
+   カード全体(.card)をY軸回転させる。90度回転した瞬間（アニメーションの
+   ちょうど半分）に、JS側で画像を裏→表に差し替えることで「めくれた」ように見せる。
+--------------------------------------------------------------- */
+@keyframes card-flip {
+  0%   { transform: translateY(0)    rotateY(0deg); }
+  25%  { transform: translateY(-3px) rotateY(60deg); }
+  50%  { transform: translateY(-3px) rotateY(90deg); }
+  75%  { transform: translateY(-3px) rotateY(120deg); }
+  100% { transform: translateY(0)    rotateY(180deg); }
+}
+
+.card-flip {
+  animation: card-flip 0.25s ease-in-out;
+}
+
+/* ---------------------------------------------------------------
+   ② カード光沢演出
+   左上から右下へ、白い光が一度だけ流れる。
+   ::after擬似要素のみで実装しており、DOM要素は増やさない（GPU負荷を抑える）。
+--------------------------------------------------------------- */
+.card-gloss::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  background-size: 250% 250%;
+  background-position: 100% 0%;
+  animation: card-gloss-sweep 0.25s ease-out;
+  pointer-events: none;
+}
+
+@keyframes card-gloss-sweep {
+  from { background-position: 100% 0%; }
+  to   { background-position: 0% 100%; }
+}
+
+/* ---------------------------------------------------------------
+   ③ 正解演出
+   拡大＆軽いバウンド(.pop)＋中央から広がるリング(.correct-ring)＋
+   キラキラ(.sparkle)の3つを同時に付ける想定。
+--------------------------------------------------------------- */
+@keyframes card-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08); }
+  70%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+.pop {
+  animation: card-pop 0.3s ease-out;
+}
+
+@keyframes ring-expand {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+.correct-ring::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30%;
+  height: 30%;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ring-expand 0.3s ease-out;
+  pointer-events: none;
+}
+
+@keyframes sparkle-pop {
+  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+  40%  { opacity: 1; transform: translate(-50%, -5px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -18px) scale(1); }
+}
+
+.sparkle::after {
+  content: "✦ ✧ ✦";
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  color: #fff;
+  font-size: 0.18em;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  animation: sparkle-pop 0.3s ease-out;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   ④ 不正解演出（シェイク）
+--------------------------------------------------------------- */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* ---------------------------------------------------------------
+   ⑥ コンボ表示演出
+   ポップしながら少し上に移動し、フェードアウトする。
+--------------------------------------------------------------- */
+@keyframes combo-pop {
+  0%   { opacity: 0; transform: translate(-50%, 0)    scale(0.8); }
+  20%  { opacity: 1; transform: translate(-50%, 0)    scale(1.15); }
+  40%  { opacity: 1; transform: translate(-50%, -6px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -20px) scale(1); }
+}
+
+.combo-pop {
+  animation: combo-pop 0.8s ease-out forwards;
+}
+
+/* ---------------------------------------------------------------
+   ⑦ ボタン共通演出
+   ホバーで少し拡大、クリックで少し縮小。
+   対象のボタン要素にこのクラスを付けるだけで適用される。
+--------------------------------------------------------------- */
+.btn-interactive {
+  transition: transform 0.15s ease;
+}
+
+.btn-interactive:hover {
+  transform: scale(1.05);
+}
+
+.btn-interactive:active {
+  transform: scale(0.95);
+}
+
+/* ---------------------------------------------------------------
+   ⑧ オプションメニュー開閉演出
+   opacity/transformの初期値・遷移先はstyle.css側の#optionMenuに定義し、
+   ここでは「表示中」を表す状態クラスの見た目だけを定義する。
+--------------------------------------------------------------- */
+#optionMenu.option-menu-visible {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+}
