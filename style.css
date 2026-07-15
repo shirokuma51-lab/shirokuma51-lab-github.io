@@ -6,6 +6,8 @@
 
 /* 演出用のアニメーションクラスは effects.css にまとめている */
 @import url("effects.css");
+/* 数字1桁分の見た目（色・光り方）は共通ファイルを読み込む */
+@import url("slotMachine.css");
 
 @font-face {
   font-family: "Akogare";
@@ -157,9 +159,6 @@ html, body {
 }
 
 /* ---------------- Lucky Chance スロット演出 ---------------- */
-
-/* 数字1桁分の見た目（色・光り方）は共通ファイルを読み込む */
-@import url("slotMachine.css");
 
 #slotMachine {
   position: absolute;
