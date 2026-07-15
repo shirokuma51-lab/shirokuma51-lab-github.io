@@ -5,7 +5,7 @@
    コンテナの配置(絶対配置か中央寄せか等)は、それぞれのCSS側で決める。
    =============================================================== */
 
-/* 数字1桁分の窓（デフォルトはスマホ向けの小さめサイズ） */
+/* 画像1枠分の窓（デフォルトはスマホ向けの小さめサイズ） */
 .slotDigit {
   position: relative;
   width: 80px;
@@ -18,17 +18,12 @@
   border: 5px solid #666;
   border-radius: 12px;
 
-  font-family: "Akogare", sans-serif;
-  font-size: 60px;
-  color: #ff5252;
-  text-shadow: 0 0 15px rgba(255, 82, 82, .8);
-
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-/* 【演出】「現在の数字」と「次の数字」を縦2段に並べた帯。
-   これをtranslateYでスクロールさせることで、数字が滑らかに流れて見える。
-   高さ200%＝子要素(span)2つ分で、通常は上段(現在の数字)だけが窓に見えている。 */
+/* 【演出】「現在の画像」と「次の画像」を縦2段に並べた帯。
+   これをtranslateYでスクロールさせることで、画像が滑らかに流れて見える。
+   高さ200%＝子要素(img)2つ分で、通常は上段(現在の画像)だけが窓に見えている。 */
 .digitStrip {
   display: flex;
   flex-direction: column;
@@ -37,19 +32,17 @@
   transform: translateY(0);
 }
 
-.digitStrip span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.digitStrip img {
+  width: 100%;
   height: 50%; /* .digitStripの高さ(200%)の半分＝.slotDigit1個分の高さ */
+  object-fit: cover; /* 枠からはみ出た部分は切り取り、縦横比を保ったまま埋める */
+  display: block;
 }
 
 /* その桁が止まっている間の見た目（回転中と区別する） */
 .slotDigit.stopped {
   border-color: #ffcc00;
   box-shadow: 0 0 25px rgba(255, 204, 0, .8);
-  color: #ffcc00;
-  text-shadow: 0 0 15px rgba(255, 204, 0, .9);
 }
 
 /* 制限時間切れで再始動した瞬間の一瞬の演出 */
@@ -61,7 +54,6 @@
 /* 3桁揃った（ゾロ目）時の演出 */
 .slotDigit.jackpot {
   border-color: #ff69b4;
-  color: #fff;
   background: #ff1493;
   box-shadow: 0 0 35px rgba(255, 105, 180, 1);
 }

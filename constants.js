@@ -61,13 +61,18 @@ export const LUCKY_CHANCE_TRIGGER_PROBABILITY = 0.15;
 // スロットの桁数（例: 3なら「7 7 7」のような3桁スロット）
 export const LUCKY_CHANCE_DIGIT_COUNT = 3;
 
+// スロットの各枠に表示する画像（数字の代わり）。
+// 配列のインデックスが「digit」の値として扱われる（0番目の画像＝digit:0、という対応）。
+// 揃った時にゾロ目判定される画像なので、増やしたい場合はここに画像パスを追記するだけでOK
+export const SLOT_SYMBOLS = ["cat.png", "cat2.png", "cat3.png"];
+
 // 回転中の桁が1コマ進む間隔(ms)
 export const LUCKY_CHANCE_TICK_INTERVAL_MS = 500;
 
 // 1桁目が止まってから、残り全部の桁が止まるまでの制限時間(ms)。
 // この時間内に全桁止まらなければ、止めていた桁も含めて全部再び回り出す。
 // （＝複数人が息を合わせてボタンを押す必要がある、という仕様のキモ）
-export const LUCKY_CHANCE_STOP_WINDOW_MS = 500;
+export const LUCKY_CHANCE_STOP_WINDOW_MS = 1000;
 
 // 結果が確定してから、演出を消すまでの表示時間(ms)
 export const LUCKY_CHANCE_RESULT_DISPLAY_MS = 2000;

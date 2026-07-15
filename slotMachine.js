@@ -1,23 +1,27 @@
 // ===============================================================
 // slotMachine.js
-// 3桁デジタルスロットのロジックを管理するクラス。
+// 3桁スロットのロジックを管理するクラス。
 //
 // 【仕様】
-// ・3桁がそれぞれ独立して回転する（0〜9をループ）
+// ・3桁がそれぞれ独立して回転する（SLOT_SYMBOLSの画像をループ）
+//   ※内部的には「digit」という数値プロパティで管理しているが、これは
+//     SLOT_SYMBOLS配列のインデックス（何番目の画像か）を表す値になっている。
 // ・press() が呼ばれるたびに、まだ回転中の桁のうち一番左の桁が止まる
 // ・1桁目が止まった瞬間から LUCKY_CHANCE_STOP_WINDOW_MS のカウントダウンが始まる
 // ・その時間内に残りの桁も全部止まらなければ、止めていた桁も含めて
 //   全部また回転を再開する（＝複数人が息を合わせて押す必要がある）
-// ・3桁全部止まったら、その時点の数字で結果が自動確定する
+// ・3桁全部止まったら、その時点の画像で結果が自動確定する
 //
 // 【設計方針】
 // このクラスはDOMを一切知らない。誰が press() を呼ぶかも関知しない。
-// 今は動作確認用に main.js 側のテストボタンから press() を呼んでいるが、
-// Phase3-3で「視聴者ページ→Firebase→この press()」という流れに差し替える際も
-// press() のインターフェース自体は変わらないため、呼び出し元だけ差し替えればよい。
 // ===============================================================
 
-import { LUCKY_CHANCE_DIGIT_COUNT, LUCKY_CHANCE_TICK_INTERVAL_MS, LUCKY_CHANCE_STOP_WINDOW_MS } from "./constants.js";
+import {
+  LUCKY_CHANCE_DIGIT_COUNT,
+  LUCKY_CHANCE_TICK_INTERVAL_MS,
+  LUCKY_CHANCE_STOP_WINDOW_MS,
+  SLOT_SYMBOLS
+} from "./constants.js";
 
 export class SlotMachine {
   constructor() {
@@ -52,7 +56,7 @@ export class SlotMachine {
   /** スロットの回転を開始する（3桁とも回転状態にする） */
   start() {
     this.reels.forEach(reel => {
-      reel.digit = Math.floor(Math.random() * 10);
+      reel.digit = Math.floor(Math.random() * SLOT_SYMBOLS.length);
       reel.isSpinning = true;
     });
     this._clearStopWindow();
@@ -61,7 +65,7 @@ export class SlotMachine {
     this._spinTimerId = setInterval(() => {
       this.reels.forEach(reel => {
         if (reel.isSpinning) {
-          reel.digit = (reel.digit + 1) % 10;
+          reel.digit = (reel.digit + 1) % SLOT_SYMBOLS.length;
         }
       });
       this._emitUpdate();
