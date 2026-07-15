@@ -41,6 +41,10 @@ export const GRID_LAYOUTS = {
   10: { columns: 4, cardSize: 180 }
 };
 
+// カード番号の文字サイズを、カードサイズに対してどのくらいの比率にするか
+// （元々は300pxカードに対して150pxだったので、その比率 0.5 を基準にしている）
+export const CARD_NUMBER_FONT_RATIO = 0.5;
+
 // 2枚目をめくってから正解判定を行うまでの待機時間(ms)
 export const CARD_CHECK_DELAY = 600;
 // ペア成立時、カードを非表示にするまでの待機時間(ms)

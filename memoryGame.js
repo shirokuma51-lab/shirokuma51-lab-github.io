@@ -9,6 +9,7 @@ import {
   CARD_BACK_IMAGE,
   GRID_LAYOUTS,
   CARD_CHECK_DELAY,
+  CARD_NUMBER_FONT_RATIO,
   EFFECT_CARD_FLIP_SWAP_MS,
   EFFECT_CORRECT_DURATION_MS,
   EFFECT_MISS_SHAKE_DURATION_MS
@@ -95,6 +96,13 @@ export class MemoryGame {
     const numberEl = document.createElement("div");
     numberEl.className = "cardNumber";
     numberEl.textContent = number;
+
+    // 【修正】以前は文字サイズがCSSで150px固定だったため、6ペア/10ペアで
+    // カードが小さくなると数字だけ大きいままはみ出してしまっていた。
+    // カードサイズに比例させることで、枚数を変えても常にカード内に収まるようにする。
+    if (this._pendingCardSize) {
+      numberEl.style.fontSize = `${Math.round(this._pendingCardSize * CARD_NUMBER_FONT_RATIO)}px`;
+    }
 
     div.appendChild(img);
     div.appendChild(numberEl);
