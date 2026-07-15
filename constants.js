@@ -113,3 +113,19 @@ export const EFFECT_ICON_PEAK_SCALE_RATIO = 1.15;
 
 // オプションメニューの開閉アニメーション時間(ms)
 export const EFFECT_OPTION_MENU_DURATION_MS = 250;
+
+// ===============================================================
+// 背景プリセット
+// OBSの「ブラウザ」ソースで正しく透過キャプチャできていれば
+// 基本は「transparent」のままでよいが、確認用・別ソフトとの
+// 互換性のために色を選べるようにしておく。
+// ===============================================================
+export const BACKGROUND_OPTIONS = {
+  transparent: { label: "透明（OBS用）", cssValue: "transparent" },
+  green: { label: "グリーンバック", cssValue: "#00ff00" },
+  white: { label: "白", cssValue: "#ffffff" },
+  black: { label: "黒", cssValue: "#000000" }
+};
+
+// ページを開いた時点で適用しておく背景キー（BACKGROUND_OPTIONSのキーのいずれか）
+export const DEFAULT_BACKGROUND_KEY = "transparent";

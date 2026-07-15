@@ -24,7 +24,7 @@ import {
   publishSlotResume,
   publishSlotResult
 } from "./luckyChanceSync.js";
-import { LUCKY_CHANCE_RESULT_DISPLAY_MS } from "./constants.js";
+import { LUCKY_CHANCE_RESULT_DISPLAY_MS, BACKGROUND_OPTIONS, DEFAULT_BACKGROUND_KEY } from "./constants.js";
 
 function main() {
   // --- DOM要素の取得 ---
@@ -38,6 +38,7 @@ function main() {
   const optionMenuEl = document.getElementById("optionMenu");
   const cardCountSelect = document.getElementById("cardCount");
   const iconCountSelect = document.getElementById("iconCount");
+  const backgroundSelect = document.getElementById("backgroundSelect");
 
   const slotMachineEl = document.getElementById("slotMachine");
   const slotStopTestBtn = document.getElementById("slotStopTestBtn");
@@ -161,6 +162,25 @@ function main() {
   resetBtn.addEventListener("click", () => {
     memoryGame.reset();
   });
+
+  // --- 背景の切り替え ---
+  // OBSの「ブラウザ」ソースで透過キャプチャできていれば「透明」のままでよいが、
+  // 確認用や別ソフトとの互換性のために背景色を選べるようにしている。
+  // 選択された瞬間に即座に反映する（決定ボタンを待たない）。
+  function applyBackground(key) {
+    const option = BACKGROUND_OPTIONS[key];
+    if (!option) return;
+    document.body.style.background = option.cssValue;
+  }
+
+  applyBackground(DEFAULT_BACKGROUND_KEY);
+
+  if (backgroundSelect) {
+    backgroundSelect.value = DEFAULT_BACKGROUND_KEY;
+    backgroundSelect.addEventListener("change", () => {
+      applyBackground(backgroundSelect.value);
+    });
+  }
 
   // --- リサイズ対応 ---
   setupResizeHandler(gameEl);
