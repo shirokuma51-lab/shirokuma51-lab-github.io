@@ -41,7 +41,6 @@ function main() {
   const backgroundSelect = document.getElementById("backgroundSelect");
 
   const slotMachineEl = document.getElementById("slotMachine");
-  const slotStopTestBtn = document.getElementById("slotStopTestBtn");
   const emergencyStopBtn = document.getElementById("emergencyStopBtn");
 
   // --- 各モジュールの初期化 ---
@@ -69,10 +68,9 @@ function main() {
     }
   }
 
-  /** スロット演出・仮テストボタンを非表示に戻す（結果確定時・緊急停止時の両方で使う） */
+  /** スロット演出を非表示に戻す（結果確定時・緊急停止時の両方で使う） */
   function closeLuckyChanceUI() {
     slotMachineUI.hide();
-    if (slotStopTestBtn) slotStopTestBtn.style.display = "none";
   }
 
   // 桁の状態（回転中/停止中/数字）が変化するたびに見た目を更新
@@ -109,10 +107,8 @@ function main() {
   luckyChanceManager.onTrigger(async () => {
     slotMachineUI.show();
     slotMachine.start();
-    if (slotStopTestBtn) slotStopTestBtn.style.display = "block";
 
     // Firebase側にセッションを立てて、視聴者ページからの押下監視を開始する。
-    // Firebase未設定などで失敗しても、テストボタンでの動作には影響しない。
     activeSessionId = await startLuckyChanceSession();
     if (activeSessionId) {
       unsubscribePresses = listenForPresses(activeSessionId, () => {
@@ -120,16 +116,6 @@ function main() {
       });
     }
   });
-
-  // 【動作確認用の仮ボタン】
-  // 本来は視聴者用Webページ→Firebase経由で複数人が押すことでslotMachine.press()が
-  // 呼ばれる想定（Phase3-3で実装）。それができるまでの間、配信者がこのボタンを
-  // 連打することで「誰かが押した」動きを手元で確認できるようにしている。
-  if (slotStopTestBtn) {
-    slotStopTestBtn.addEventListener("click", () => {
-      slotMachine.press();
-    });
-  }
 
   // Lucky Chance緊急停止（配信者専用）。
   // 発生していない時に押しても何も起きない。発生中に押すと、

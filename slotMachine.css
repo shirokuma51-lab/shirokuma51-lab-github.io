@@ -7,12 +7,12 @@
 
 /* 数字1桁分の窓（デフォルトはスマホ向けの小さめサイズ） */
 .slotDigit {
+  position: relative;
   width: 80px;
   height: 120px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* 【演出】中の.digitStripがスクロールする範囲を、この枠の中だけに切り取る */
+  overflow: hidden;
 
   background: #111;
   border: 5px solid #666;
@@ -24,6 +24,24 @@
   text-shadow: 0 0 15px rgba(255, 82, 82, .8);
 
   transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+/* 【演出】「現在の数字」と「次の数字」を縦2段に並べた帯。
+   これをtranslateYでスクロールさせることで、数字が滑らかに流れて見える。
+   高さ200%＝子要素(span)2つ分で、通常は上段(現在の数字)だけが窓に見えている。 */
+.digitStrip {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 200%;
+  transform: translateY(0);
+}
+
+.digitStrip span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50%; /* .digitStripの高さ(200%)の半分＝.slotDigit1個分の高さ */
 }
 
 /* その桁が止まっている間の見た目（回転中と区別する） */
