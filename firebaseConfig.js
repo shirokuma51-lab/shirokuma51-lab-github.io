@@ -12,12 +12,12 @@
 // ===============================================================
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAucRpmiRDuWK5qFEj11oAepAosWezWXhQ",
+  authDomain: "your-api-key-87e31.firebaseapp.com",
+  projectId: "your-api-key-87e31",
+  storageBucket: "your-api-key-87e31.firebasestorage.app",
+  messagingSenderId: "498476749816",
+  appId: "1:498476749816:web:ab591e34401ba0f916bc0d"
 };
 
 // Firestoreの中で使うコレクション名（視聴者データを入れる場所）
