@@ -32,6 +32,9 @@ export const CARD_NUMBER_FONT_RATIO = 0.5;
 
 // 2枚目をめくってから正解判定を行うまでの待機時間(ms)
 export const CARD_CHECK_DELAY = 600;
+// Show each revealed face long enough to read it before checking the pair.
+export const CARD_PREVIEW_HOLD_MS = 1800;
+export const CARD_PREVIEW_FADE_MS = 220;
 // ペア成立時、カードを非表示にするまでの待機時間(ms)
 export const CARD_HIDE_DELAY = 300;
 

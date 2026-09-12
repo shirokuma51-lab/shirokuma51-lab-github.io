@@ -177,3 +177,48 @@ canvas {
 #displayStatus:empty {
   display: none;
 }
+
+/* A separate layer keeps the enlarged face clear of flip animations and clipping. */
+#cardPreview {
+  position: absolute;
+  top: 320px;
+  left: 50%;
+  width: 820px;
+  margin: 0;
+  padding: 24px;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  z-index: 950;
+  pointer-events: none;
+  border: 3px solid #fff9;
+  border-radius: 36px;
+  background: rgba(27, 22, 40, 0.92);
+  box-shadow: 0 16px 60px #0008, 0 0 30px #ffcfeb55;
+  animation: preview-appear 220ms ease-out both;
+}
+#cardPreview[hidden] { display: none; }
+#cardPreview img {
+  display: block;
+  width: 100%;
+  height: 760px;
+  object-fit: contain;
+  border-radius: 18px;
+}
+#cardPreview figcaption {
+  margin-top: 12px;
+  text-align: center;
+  font: 36px/1.3 "Akogare", sans-serif;
+  color: #fff;
+}
+#cardPreview.leaving { animation: preview-disappear 220ms ease-in both; }
+@keyframes preview-appear {
+  from { opacity: 0; transform: translateX(-50%) scale(.82); }
+  to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes preview-disappear {
+  from { opacity: 1; transform: translateX(-50%) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) scale(.94); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #cardPreview, #cardPreview.leaving { animation-duration: 1ms; }
+}

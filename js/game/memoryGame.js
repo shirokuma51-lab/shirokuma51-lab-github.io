@@ -1,6 +1,7 @@
 import {
   GRID_LAYOUTS,
-  CARD_CHECK_DELAY,
+  CARD_PREVIEW_HOLD_MS,
+  CARD_PREVIEW_FADE_MS,
   EFFECT_CARD_FLIP_SWAP_MS,
   EFFECT_CORRECT_DURATION_MS,
   EFFECT_MISS_SHAKE_DURATION_MS,
@@ -12,6 +13,7 @@ export class MemoryGame {
     this.sound = sound;
     this.physics = physics;
     this.timers = new Set();
+    this.preview = document.getElementById("cardPreview");
     this.reset();
   }
   later(fn, ms) {
@@ -27,6 +29,12 @@ export class MemoryGame {
     this.area.replaceChildren();
     this.area.style.display = "none";
     this.first = null;
+    this.previewing = false;
+    if (this.preview) {
+      this.preview.hidden = true;
+      this.preview.classList.remove("leaving");
+      this.preview.querySelector("img").removeAttribute("src");
+    }
     this.locked = false;
     this.combo = 0;
     const c = document.getElementById("comboDisplay");
@@ -60,21 +68,38 @@ export class MemoryGame {
     this.area.style.display = "grid";
   }
   flip(card) {
-    if (this.locked || card.matched || card === this.first) return;
+    if (this.locked || this.previewing || card.matched || card === this.first) return;
+    this.previewing = true;
     this.sound.play("flip");
     card.div.classList.add("card-flip", "card-gloss");
     this.later(() => {
       card.img.src = card.answer.image;
       card.number.style.display = "none";
+      this.showPreview(card);
     }, EFFECT_CARD_FLIP_SWAP_MS);
     this.later(() => card.div.classList.remove("card-flip", "card-gloss"), 260);
-    if (!this.first) {
-      this.first = card;
-      return;
-    }
-    this.locked = true;
     const first = this.first;
-    this.later(() => this.check(first, card), CARD_CHECK_DELAY);
+    if (!first) {
+      this.first = card;
+    } else {
+      this.locked = true;
+    }
+    this.later(() => {
+      this.previewing = false;
+      if (first) this.check(first, card);
+    }, EFFECT_CARD_FLIP_SWAP_MS + CARD_PREVIEW_HOLD_MS + CARD_PREVIEW_FADE_MS);
+  }
+  showPreview(card) {
+    if (!this.preview) return;
+    this.preview.querySelector("img").src = card.answer.image;
+    this.preview.querySelector("figcaption").textContent =
+      "カード " + card.number.textContent;
+    this.preview.classList.remove("leaving");
+    this.preview.hidden = false;
+    this.later(() => this.preview.classList.add("leaving"), CARD_PREVIEW_HOLD_MS);
+    this.later(() => {
+      this.preview.hidden = true;
+    }, CARD_PREVIEW_HOLD_MS + CARD_PREVIEW_FADE_MS);
   }
   check(a, b) {
     if (a.answer.type === b.answer.type) {

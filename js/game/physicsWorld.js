@@ -53,15 +53,17 @@ export class PhysicsWorld {
         CANVAS_HEIGHT - t / 2,
         CANVAS_WIDTH,
         t,
-        { isStatic: true },
+        { isStatic: true, render: { visible: false } },
       ),
       // 左壁
       Bodies.rectangle(0, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
         isStatic: true,
+        render: { visible: false },
       }),
       // 右壁
       Bodies.rectangle(CANVAS_WIDTH, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
         isStatic: true,
+        render: { visible: false },
       }),
     ]);
   }
