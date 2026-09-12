@@ -19,11 +19,21 @@
    ちょうど半分）に、JS側で画像を裏→表に差し替えることで「めくれた」ように見せる。
 --------------------------------------------------------------- */
 @keyframes card-flip {
-  0%   { transform: translateY(0)    rotateY(0deg); }
-  25%  { transform: translateY(-3px) rotateY(60deg); }
-  50%  { transform: translateY(-3px) rotateY(90deg); }
-  75%  { transform: translateY(-3px) rotateY(120deg); }
-  100% { transform: translateY(0)    rotateY(180deg); }
+  0% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotateY(60deg);
+  }
+  50% {
+    transform: translateY(-3px) rotateY(90deg);
+  }
+  75% {
+    transform: translateY(-3px) rotateY(120deg);
+  }
+  100% {
+    transform: translateY(0) rotateY(180deg);
+  }
 }
 
 .card-flip {
@@ -52,8 +62,12 @@
 }
 
 @keyframes card-gloss-sweep {
-  from { background-position: 100% 0%; }
-  to   { background-position: 0% 100%; }
+  from {
+    background-position: 100% 0%;
+  }
+  to {
+    background-position: 0% 100%;
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -62,10 +76,18 @@
    キラキラ(.sparkle)の3つを同時に付ける想定。
 --------------------------------------------------------------- */
 @keyframes card-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.08); }
-  70%  { transform: scale(0.98); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  70% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .pop {
@@ -98,9 +120,18 @@
 }
 
 @keyframes sparkle-pop {
-  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
-  40%  { opacity: 1; transform: translate(-50%, -5px) scale(1.1); }
-  100% { opacity: 0; transform: translate(-50%, -18px) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(-50%, -5px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -18px) scale(1);
+  }
 }
 
 .sparkle::after {
@@ -120,11 +151,22 @@
    ④ 不正解演出（シェイク）
 --------------------------------------------------------------- */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%      { transform: translateX(-8px); }
-  40%      { transform: translateX(8px); }
-  60%      { transform: translateX(-6px); }
-  80%      { transform: translateX(6px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
 }
 
 .shake {
@@ -136,10 +178,22 @@
    ポップしながら少し上に移動し、フェードアウトする。
 --------------------------------------------------------------- */
 @keyframes combo-pop {
-  0%   { opacity: 0; transform: translate(-50%, 0)    scale(0.8); }
-  20%  { opacity: 1; transform: translate(-50%, 0)    scale(1.15); }
-  40%  { opacity: 1; transform: translate(-50%, -6px) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -20px) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.15);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -20px) scale(1);
+  }
 }
 
 .combo-pop {

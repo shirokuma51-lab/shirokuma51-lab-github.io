@@ -7,14 +7,14 @@
 /* 演出用のアニメーションクラスは effects.css にまとめている */
 @import url("effects.css");
 /* 数字1桁分の見た目（色・光り方）は共通ファイルを読み込む */
-@import url("slotMachine.css");
 
 @font-face {
   font-family: "Akogare";
-  src: url("akogarenomarumoji.ttf");
+  src: url("../assets/fonts/akogarenomarumoji.ttf");
 }
 
-html, body {
+html,
+body {
   margin: 0;
   width: 100%;
   height: 100%;
@@ -57,30 +57,6 @@ html, body {
   top: 80px;
   right: 250px;
   width: 350px;
-}
-
-/* Lucky Chance緊急停止ボタン（配信者専用。常時表示） */
-#emergencyStopBtn {
-  position: absolute;
-  top: 200px;
-  right: 60px;
-
-  padding: 15px 30px;
-  font-size: 24px;
-  font-weight: bold;
-
-  background: #444;
-  color: #ff5252;
-  border: 3px solid #ff5252;
-  border-radius: 12px;
-  cursor: pointer;
-
-  z-index: 2000;
-}
-
-#emergencyStopBtn:active {
-  background: #ff5252;
-  color: white;
 }
 
 /* ---------------- カード ---------------- */
@@ -151,68 +127,13 @@ html, body {
   font-family: "Akogare";
   font-size: 70px;
   color: #fff;
-  text-shadow: 0 0 10px rgba(255, 140, 0, 0.9), 3px 3px 0 rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 0 10px rgba(255, 140, 0, 0.9),
+    3px 3px 0 rgba(0, 0, 0, 0.3);
 
   opacity: 0;
   z-index: 900;
   pointer-events: none;
-}
-
-/* ---------------- Lucky Chance スロット演出 ---------------- */
-
-#slotMachine {
-  position: absolute;
-  top: 900px;
-  left: 50%;
-  transform: translateX(-50%);
-
-  display: none; /* JSから表示切替 */
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-
-  padding: 30px 40px;
-
-  background: rgba(0, 0, 0, .7);
-  border-radius: 30px;
-
-  z-index: 1500;
-  pointer-events: none;
-}
-
-/* OBS(1536x2048)用に、共通デザインより一回り大きく表示する */
-#slotMachine .slotDigit {
-  width: 150px;
-  height: 220px;
-  border-width: 6px;
-}
-
-/* ---------------- 設定メニュー ---------------- */
-
-#optionMenu {
-  position: absolute;
-  top: 350px;
-  left: 50%;
-
-  background: rgba(0, 0, 0, .7);
-  color: white;
-
-  padding: 50px;
-  border-radius: 30px;
-  font-size: 45px;
-
-  display: none;
-  z-index: 1000;
-
-  /* 【演出】開閉アニメーションの初期状態（非表示時は少し縮小＋透明） */
-  opacity: 0;
-  transform: translateX(-50%) scale(0.9);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none; /* 非表示中はクリックを受け付けない */
-}
-
-select, button {
-  font-size: 35px;
 }
 
 /* ---------------- Matter.js 描画キャンバス ---------------- */
@@ -223,4 +144,36 @@ canvas {
   left: 0;
   z-index: 1;
   pointer-events: none;
+}
+
+.card img {
+  object-fit: contain;
+}
+.card {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.image-button {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.image-button img {
+  width: 100%;
+  display: block;
+}
+#displayStatus {
+  position: absolute;
+  top: 300px;
+  left: 80px;
+  right: 80px;
+  text-align: center;
+  font: 28px sans-serif;
+  color: #9d243e;
+  background: #fff9;
+  border-radius: 12px;
+}
+#displayStatus:empty {
+  display: none;
 }

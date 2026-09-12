@@ -14,7 +14,7 @@ export function setupResizeHandler(gameElement) {
   function resize() {
     const scale = Math.min(
       window.innerWidth / CANVAS_WIDTH,
-      window.innerHeight / CANVAS_HEIGHT
+      window.innerHeight / CANVAS_HEIGHT,
     );
     gameElement.style.transform = `scale(${scale})`;
   }

@@ -10,7 +10,7 @@ import {
   PHYSICS_CONFIG,
   EFFECT_ICON_APPEAR_DURATION_MS,
   EFFECT_ICON_START_SCALE_RATIO,
-  EFFECT_ICON_PEAK_SCALE_RATIO
+  EFFECT_ICON_PEAK_SCALE_RATIO,
 } from "./constants.js";
 
 export class PhysicsWorld {
@@ -31,8 +31,8 @@ export class PhysicsWorld {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
         background: "transparent",
-        wireframes: false
-      }
+        wireframes: false,
+      },
     });
 
     Render.run(this.render);
@@ -48,11 +48,21 @@ export class PhysicsWorld {
 
     World.add(this.engine.world, [
       // 床
-      Bodies.rectangle(CANVAS_WIDTH / 2, CANVAS_HEIGHT - t / 2, CANVAS_WIDTH, t, { isStatic: true }),
+      Bodies.rectangle(
+        CANVAS_WIDTH / 2,
+        CANVAS_HEIGHT - t / 2,
+        CANVAS_WIDTH,
+        t,
+        { isStatic: true },
+      ),
       // 左壁
-      Bodies.rectangle(0, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, { isStatic: true }),
+      Bodies.rectangle(0, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
+        isStatic: true,
+      }),
       // 右壁
-      Bodies.rectangle(CANVAS_WIDTH, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, { isStatic: true })
+      Bodies.rectangle(CANVAS_WIDTH, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
+        isStatic: true,
+      }),
     ]);
   }
 
@@ -61,33 +71,48 @@ export class PhysicsWorld {
    * @param {string} image - 落下させるアイコン画像のパス
    */
   dropIcon(image) {
+    const texture = new Image();
+    texture.onload = () => this._dropReady(image, texture);
+    texture.src = image;
+  }
+
+  _dropReady(image, texture) {
     const { World, Bodies, Body } = Matter;
     const { min, max } = PHYSICS_CONFIG.dropXRange;
     const x = Math.random() * (max - min) + min;
 
     // 【演出】最終的なサイズ(baseScale)に対する、出現時・ピーク時のスケール比率
-    const baseScale = PHYSICS_CONFIG.iconSpriteScale;
+    // Keep uploaded and built-in cats the same visible size.
+    const baseScale =
+      360 /
+      Math.max(texture.naturalWidth || 1024, texture.naturalHeight || 1024);
     const startScale = baseScale * EFFECT_ICON_START_SCALE_RATIO;
     const peakScale = baseScale * EFFECT_ICON_PEAK_SCALE_RATIO;
 
-    const ball = Bodies.circle(x, PHYSICS_CONFIG.dropY, PHYSICS_CONFIG.iconRadius, {
-      restitution: PHYSICS_CONFIG.iconRestitution,
-      friction: PHYSICS_CONFIG.iconFriction,
-      render: {
-        sprite: {
-          texture: image,
-          xScale: startScale,
-          yScale: startScale
+    const ball = Bodies.circle(
+      x,
+      PHYSICS_CONFIG.dropY,
+      PHYSICS_CONFIG.iconRadius,
+      {
+        restitution: PHYSICS_CONFIG.iconRestitution,
+        friction: PHYSICS_CONFIG.iconFriction,
+        render: {
+          sprite: {
+            texture: image,
+            xScale: startScale,
+            yScale: startScale,
+          },
+          opacity: 0, // 【演出】フェードインさせるため、最初は透明にしておく
         },
-        opacity: 0 // 【演出】フェードインさせるため、最初は透明にしておく
-      }
-    });
+      },
+    );
 
     World.add(this.engine.world, ball);
     this.soundManager.play("drop");
 
     // 【演出】出現時に少しだけランダムに回転させる（柔らかく可愛い揺れ）
-    const randomSpin = (Math.random() * 2 - 1) * PHYSICS_CONFIG.iconSpinVelocity;
+    const randomSpin =
+      (Math.random() * 2 - 1) * PHYSICS_CONFIG.iconSpinVelocity;
     Body.setAngularVelocity(ball, randomSpin);
 
     // 【演出】拡大→縮小の弾むような出現アニメーション＋フェードイン
@@ -108,7 +133,7 @@ export class PhysicsWorld {
     const duration = EFFECT_ICON_APPEAR_DURATION_MS;
     const startTime = performance.now();
 
-    const step = now => {
+    const step = (now) => {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / duration, 1);
 

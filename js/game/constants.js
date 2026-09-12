@@ -11,34 +11,19 @@ export const CANVAS_HEIGHT = 2048;
 
 // 効果音ファイルのパス（キー名で呼び出す）
 export const SOUND_PATHS = {
-  flip: "flip.mp3",
-  correct: "correct.mp3",
-  miss: "miss.mp3",
-  drop: "drop.mp3",
-  start: "start.mp3" // 現状コード内では未使用（今後スタートボタン用などに利用可）
+  flip: "assets/audio/flip.mp3",
+  correct: "assets/audio/correct.mp3",
+  miss: "assets/audio/miss.mp3",
+  drop: "assets/audio/drop.mp3",
+  start: "assets/audio/start.mp3",
 };
-
-// カード表面に使うアイコン画像一覧
-// ⚠️ 現在アップロードされているのは cat.png / cat2.png / cat3.png の3種のみです。
-//    「4種類」「5種類」を選択すると cat4.png / cat5.png が見つからず
-//    画像が表示されない状態になります。画像を追加する際はここに追記するだけでOKです。
-export const ICONS = [
-  "cat.png",
-  "cat2.png",
-  "cat3.png",
-  "cat4.png",
-  "cat5.png"
-];
-
-// カード裏面の画像
-export const CARD_BACK_IMAGE = "back.png";
 
 // ペア数ごとのグリッド列数・カードサイズ設定
 // 新しいペア数の選択肢を追加したい場合はここに1行追記するだけで対応可能
 export const GRID_LAYOUTS = {
   3: { columns: 2, cardSize: 300 },
   6: { columns: 3, cardSize: 250 },
-  10: { columns: 4, cardSize: 180 }
+  10: { columns: 4, cardSize: 180 },
 };
 
 // カード番号の文字サイズを、カードサイズに対してどのくらいの比率にするか
@@ -50,43 +35,16 @@ export const CARD_CHECK_DELAY = 600;
 // ペア成立時、カードを非表示にするまでの待機時間(ms)
 export const CARD_HIDE_DELAY = 300;
 
-// ===============================================================
-// Lucky Chance 関連の設定
-// ===============================================================
-
-// ペアが揃った時にLucky Chanceが発生する確率（0〜1）
-// 例: 0.15 なら 15%の確率で発生
-export const LUCKY_CHANCE_TRIGGER_PROBABILITY = 0.15;
-
-// スロットの桁数（例: 3なら「7 7 7」のような3桁スロット）
-export const LUCKY_CHANCE_DIGIT_COUNT = 3;
-
-// スロットの各枠に表示する画像（数字の代わり）。
-// 配列のインデックスが「digit」の値として扱われる（0番目の画像＝digit:0、という対応）。
-// 揃った時にゾロ目判定される画像なので、増やしたい場合はここに画像パスを追記するだけでOK
-export const SLOT_SYMBOLS = ["cat.png", "cat2.png", "cat3.png"];
-
-// 回転中の桁が1コマ進む間隔(ms)
-export const LUCKY_CHANCE_TICK_INTERVAL_MS = 500;
-
-// 1桁目が止まってから、残り全部の桁が止まるまでの制限時間(ms)。
-// この時間内に全桁止まらなければ、止めていた桁も含めて全部再び回り出す。
-// （＝複数人が息を合わせてボタンを押す必要がある、という仕様のキモ）
-export const LUCKY_CHANCE_STOP_WINDOW_MS = 1000;
-
-// 結果が確定してから、演出を消すまでの表示時間(ms)
-export const LUCKY_CHANCE_RESULT_DISPLAY_MS = 2000;
-
 // Matter.js 物理演算関連の設定
 export const PHYSICS_CONFIG = {
-  wallThickness: 80,       // 床・壁の厚み
-  iconRadius: 120,          // 落下するアイコンの半径
-  iconRestitution: 0,       // 反発係数
-  iconFriction: 1,          // 摩擦係数
-  iconSpriteScale: 0.35,    // アイコン画像の表示スケール（最終的な基準サイズ）
+  wallThickness: 80, // 床・壁の厚み
+  iconRadius: 120, // 落下するアイコンの半径
+  iconRestitution: 0, // 反発係数
+  iconFriction: 1, // 摩擦係数
+  iconSpriteScale: 0.35, // アイコン画像の表示スケール（最終的な基準サイズ）
   dropXRange: { min: 200, max: 1200 }, // 落下開始X座標のランダム範囲
-  dropY: 100,                // 落下開始Y座標
-  iconSpinVelocity: 0.06     // 【演出】出現時に与えるランダム回転の最大角速度(ラジアン/フレーム)
+  dropY: 100, // 落下開始Y座標
+  iconSpinVelocity: 0.06, // 【演出】出現時に与えるランダム回転の最大角速度(ラジアン/フレーム)
 };
 
 // ===============================================================
@@ -116,9 +74,6 @@ export const EFFECT_ICON_APPEAR_DURATION_MS = 200;
 export const EFFECT_ICON_START_SCALE_RATIO = 0.8;
 export const EFFECT_ICON_PEAK_SCALE_RATIO = 1.15;
 
-// オプションメニューの開閉アニメーション時間(ms)
-export const EFFECT_OPTION_MENU_DURATION_MS = 250;
-
 // ===============================================================
 // 背景プリセット
 // OBSの「ブラウザ」ソースで正しく透過キャプチャできていれば
@@ -129,15 +84,8 @@ export const BACKGROUND_OPTIONS = {
   transparent: { label: "透明（OBS用）", cssValue: "transparent" },
   green: { label: "グリーンバック", cssValue: "#00ff00" },
   white: { label: "白", cssValue: "#ffffff" },
-  black: { label: "黒", cssValue: "#000000" }
+  black: { label: "黒", cssValue: "#000000" },
 };
 
 // ページを開いた時点で適用しておく背景キー（BACKGROUND_OPTIONSのキーのいずれか）
 export const DEFAULT_BACKGROUND_KEY = "transparent";
-
-// ===============================================================
-// 視聴者ページ(viewer.html)のSTOPボタン画像
-// 押している間だけ「押し込んだ状態」の画像に切り替える
-// ===============================================================
-export const STOP_BUTTON_NORMAL_IMAGE = "paw_normal.png";
-export const STOP_BUTTON_PRESSED_IMAGE = "paw_pressed.png";

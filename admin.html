@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>猫の神経衰弱｜管理画面</title>
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <small>SHIROKUMA · 配信ツール</small>
+          <h1>猫の神経衰弱</h1>
+          <p>猫とカードを、配信に合わせて。</p>
+        </div>
+        <a href="display.html" target="_blank" rel="noopener"
+          >配信表示を開く ↗</a
+        >
+      </header>
+      <p id="status" role="status" aria-live="polite"></p>
+      <section id="loginPanel">
+        <h2>管理者ログイン</h2>
+        <form id="loginForm">
+          <label
+            >メールアドレス<input
+              id="email"
+              type="email"
+              autocomplete="username"
+              required /></label
+          ><label
+            >パスワード<input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              required /></label
+          ><button>ログイン</button>
+        </form>
+      </section>
+      <div id="editor" hidden>
+        <div class="toolbar">
+          <span id="saveState">設定を読み込み中…</span
+          ><button id="logout" class="secondary">ログアウト</button>
+        </div>
+        <section>
+          <h2>配信中の調整 <span class="badge">すぐ反映</span></h2>
+          <div class="two">
+            <label
+              >背景<select id="background">
+                <option value="transparent">透明（OBS用）</option>
+                <option value="green">グリーンバック</option>
+                <option value="white">白</option>
+                <option value="black">黒</option>
+              </select></label
+            ><label
+              >音量 <output id="volumeValue">70%</output
+              ><input id="volume" type="range" min="0" max="100" step="1"
+            /></label>
+          </div>
+        </section>
+        <section>
+          <h2>カードの設定 <span class="badge muted">次の開始で反映</span></h2>
+          <div class="two">
+            <label
+              >ペア数<select id="pairs">
+                <option value="3">3ペア（6枚）</option>
+                <option value="6">6ペア（12枚）</option>
+                <option value="10">10ペア（20枚）</option>
+              </select></label
+            ><label>カードの裏面<select id="back"></select></label>
+          </div>
+          <p class="help">
+            同じ猫なら、ポーズが違っても正解です。猫の種類は均等に割り当てます。
+          </p>
+          <div id="types"></div>
+          <button id="addType" class="secondary">＋ 猫の種類を追加</button>
+        </section>
+        <section>
+          <h2>画像の保管庫 <span id="imageCount" class="badge"></span></h2>
+          <p class="help">
+            PNG・JPEG・WebPを自動で縮小・圧縮して保存します（最大50枚）。透過画像も使えます。
+          </p>
+          <label id="dropZone" class="drop-zone"
+            >＋ 画像を選択、またはここにドロップ<input
+              id="files"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+          /></label>
+          <div id="gallery" class="gallery"></div>
+        </section>
+        <section>
+          <h2>効果音</h2>
+          <p class="help">
+            登録済みの音声から選べます。新しい音声は、このサイトを編集しているチャットへ送ってください。
+          </p>
+          <div id="sounds" class="two"></div>
+        </section>
+        <footer>
+          <span>カードの変更は保存後、配信表示の「開始」で反映。</span
+          ><button id="save">カード・効果音を保存</button>
+        </footer>
+      </div>
+    </main>
+    <script type="module" src="js/admin.js"></script>
+  </body>
+</html>
