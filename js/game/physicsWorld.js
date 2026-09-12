@@ -86,7 +86,7 @@ export class PhysicsWorld {
     // 【演出】最終的なサイズ(baseScale)に対する、出現時・ピーク時のスケール比率
     // Keep uploaded and built-in cats the same visible size.
     const baseScale =
-      360 /
+      460 /
       Math.max(texture.naturalWidth || 1024, texture.naturalHeight || 1024);
     const startScale = baseScale * EFFECT_ICON_START_SCALE_RATIO;
     const peakScale = baseScale * EFFECT_ICON_PEAK_SCALE_RATIO;

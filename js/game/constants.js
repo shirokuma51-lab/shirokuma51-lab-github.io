@@ -21,9 +21,9 @@ export const SOUND_PATHS = {
 // ペア数ごとのグリッド列数・カードサイズ設定
 // 新しいペア数の選択肢を追加したい場合はここに1行追記するだけで対応可能
 export const GRID_LAYOUTS = {
-  3: { columns: 2, cardSize: 300 },
-  6: { columns: 3, cardSize: 250 },
-  10: { columns: 4, cardSize: 180 },
+  3: { columns: 3, cardSize: 430 },
+  6: { columns: 4, cardSize: 320 },
+  10: { columns: 5, cardSize: 250 },
 };
 
 // カード番号の文字サイズを、カードサイズに対してどのくらいの比率にするか
@@ -41,7 +41,7 @@ export const CARD_HIDE_DELAY = 300;
 // Matter.js 物理演算関連の設定
 export const PHYSICS_CONFIG = {
   wallThickness: 80, // 床・壁の厚み
-  iconRadius: 120, // 落下するアイコンの半径
+  iconRadius: 154, // 拡大した猫に合わせた当たり判定の半径
   iconRestitution: 0, // 反発係数
   iconFriction: 1, // 摩擦係数
   iconSpriteScale: 0.35, // アイコン画像の表示スケール（最終的な基準サイズ）
