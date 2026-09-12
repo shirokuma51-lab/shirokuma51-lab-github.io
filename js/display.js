@@ -76,4 +76,4 @@ document.getElementById("resetBtn").onclick = () => {
   start.disabled = !latest;
   status.textContent = "";
 };
-setupResizeHandler(gameEl);
+setupResizeHandler(gameEl, physics);

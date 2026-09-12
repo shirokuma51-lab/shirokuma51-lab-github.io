@@ -23,6 +23,7 @@ export class PhysicsWorld {
 
     this.soundManager = soundManager;
     this.engine = Engine.create();
+    this.height = CANVAS_HEIGHT;
 
     this.render = Render.create({
       element: container,
@@ -46,26 +47,44 @@ export class PhysicsWorld {
     const { World, Bodies } = Matter;
     const t = PHYSICS_CONFIG.wallThickness;
 
-    World.add(this.engine.world, [
+    this.boundaries = [
       // 床
       Bodies.rectangle(
         CANVAS_WIDTH / 2,
-        CANVAS_HEIGHT - t / 2,
+        this.height - 200 + t / 2,
         CANVAS_WIDTH,
         t,
         { isStatic: true, render: { visible: false } },
       ),
       // 左壁
-      Bodies.rectangle(0, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
+      Bodies.rectangle(0, this.height / 2, t, this.height, {
         isStatic: true,
         render: { visible: false },
       }),
       // 右壁
-      Bodies.rectangle(CANVAS_WIDTH, CANVAS_HEIGHT / 2, t, CANVAS_HEIGHT, {
+      Bodies.rectangle(CANVAS_WIDTH, this.height / 2, t, this.height, {
         isStatic: true,
         render: { visible: false },
       }),
-    ]);
+    ];
+    World.add(this.engine.world, this.boundaries);
+  }
+
+  resize(height) {
+    if (height === this.height) return;
+    const { World, Body } = Matter;
+    const delta = height - this.height;
+    // Move accumulated cats with their floor when OBS changes the source height.
+    for (const body of this.engine.world.bodies) {
+      if (!body.isStatic) Body.translate(body, { x: 0, y: delta });
+    }
+    World.remove(this.engine.world, this.boundaries);
+    this.height = height;
+    this._createBoundaries();
+    this.render.options.height = height;
+    this.render.canvas.height = Math.round(height * this.render.options.pixelRatio);
+    this.render.canvas.style.height = `${height}px`;
+    this.render.bounds.max.y = this.render.bounds.min.y + height;
   }
 
   /**

@@ -26,7 +26,9 @@ body {
 #game {
   width: 1536px;
   height: 2048px;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   transform-origin: top left;
 }
 
@@ -41,9 +43,9 @@ body {
 }
 
 #startBtn {
-  top: 80px;
-  left: 90px;
-  width: 450px;
+  top: 0;
+  right: 90px;
+  width: 300px;
 }
 
 #optionBtn {
@@ -54,9 +56,9 @@ body {
 }
 
 #resetBtn {
-  top: 80px;
+  top: 210px;
   right: 90px;
-  width: 450px;
+  width: 300px;
 }
 
 /* ---------------- カード ---------------- */

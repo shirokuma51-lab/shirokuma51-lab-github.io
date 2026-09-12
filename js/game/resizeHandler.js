@@ -10,13 +10,17 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants.js";
  * リサイズイベントを監視し、#game要素にscale変形を適用する
  * @param {HTMLElement} gameElement - スケーリング対象の要素(#game)
  */
-export function setupResizeHandler(gameElement) {
+export function setupResizeHandler(gameElement, physicsWorld) {
   function resize() {
     const scale = Math.min(
       window.innerWidth / CANVAS_WIDTH,
       window.innerHeight / CANVAS_HEIGHT,
     );
     gameElement.style.transform = `scale(${scale})`;
+    // A taller OBS source adds space below, without rescaling the cards.
+    const height = Math.max(CANVAS_HEIGHT, window.innerHeight / scale);
+    gameElement.style.height = `${height}px`;
+    physicsWorld.resize(height);
   }
 
   window.addEventListener("resize", resize);
