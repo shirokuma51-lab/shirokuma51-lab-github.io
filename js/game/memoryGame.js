@@ -68,7 +68,12 @@ export class MemoryGame {
     this.area.style.display = "grid";
   }
   flip(card) {
-    if (this.locked || this.previewing || card.matched || card === this.first) return;
+    if (this.locked || card.matched) return;
+    if (card === this.first) {
+      this.cancelFirst();
+      return;
+    }
+    if (this.previewing) return;
     this.previewing = true;
     this.sound.play("flip");
     card.div.classList.add("card-flip", "card-gloss");
@@ -88,6 +93,23 @@ export class MemoryGame {
       this.previewing = false;
       if (first) this.check(first, card);
     }, EFFECT_CARD_FLIP_SWAP_MS + CARD_PREVIEW_HOLD_MS + CARD_PREVIEW_FADE_MS);
+  }
+  cancelFirst() {
+    const card = this.first;
+    // Cancel the face swap and preview callbacks too, including rapid double clicks.
+    for (const id of this.timers) clearTimeout(id);
+    this.timers.clear();
+    this.first = null;
+    this.previewing = false;
+    card.img.src = this.back;
+    card.number.style.display = "flex";
+    card.div.classList.remove("card-flip", "card-gloss");
+    if (this.preview) {
+      this.preview.hidden = true;
+      this.preview.classList.remove("leaving");
+      this.preview.querySelector("img").removeAttribute("src");
+    }
+    this.sound.play("flip");
   }
   showPreview(card) {
     if (!this.preview) return;
